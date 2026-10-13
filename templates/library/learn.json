@@ -1,0 +1,11 @@
+{
+  "learnLibrary": 1,
+  "language": "en",
+  "defaultLength": "normal",
+  "lengths": {
+    "quick": "about 5 min: one idea, 2 examples, a few exercises",
+    "normal": "about 10–15 min: one idea, 3+ examples, full exercise ladder",
+    "deep": "25+ min: one bigger idea, many examples, harder boss problems"
+  },
+  "notes": []
+}

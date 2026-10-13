@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Learning Library</title>
+<script>try{var t=JSON.parse(localStorage.getItem("learn:theme"));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="assets/style.css">
+<script src="library.js"></script>
+<script src="assets/learn.js" defer></script>
+</head>
+<body>
+<main>
+  <h1>📚 My Learning Library</h1>
+  <p class="subtitle">Everything you've learned, in one place. Search it, see what's fading, and jump back in.</p>
+
+  <input class="search" id="search" type="search" placeholder="🔎 Search topics, lessons, key points…" autocomplete="off">
+  <div class="legend">
+    <span><i class="rust fresh"></i> fresh (&lt; 1 week)</span>
+    <span><i class="rust fading"></i> fading (1–3 weeks)</span>
+    <span><i class="rust rusty"></i> rusty (3+ weeks): open its 🔁 Comeback page</span>
+  </div>
+
+  <ul class="results" id="results" hidden></ul>
+  <div id="continue"></div>
+  <div id="library"></div>
+
+  <details id="how" style="margin-top:48px">
+    <summary>❓ How this works (30 seconds)</summary>
+    <ol>
+      <li><strong>One command:</strong> in your terminal, inside this folder, run <code>claude</code> and type <code>/learn</code> + what you want, in plain words:
+        <pre><code>/learn linear equations
+/learn next lesson on react hooks
+/learn more hard problems on vectors
+/learn I forgot how SQL joins work
+/learn update the python loops cheatsheet</code></pre></li>
+      <li><strong>Each topic has 4 kinds of pages:</strong>
+        <ul>
+          <li>📖 <strong>Lessons</strong>: problem → picture → how it works → examples → solve it → cheat card</li>
+          <li>✍️ <strong>Exercises</strong>: 🧩 guided → 🟢 practice → 🟡 real-world → 🔴 boss. Answers are checked right on the page.</li>
+          <li>🔁 <strong>Comeback</strong>: forgot everything? Read the key points in 2 minutes, then go straight to hard problems.</li>
+          <li>📌 <strong>Cheatsheet</strong>: every cheat card in one page, for quick lookups.</li>
+        </ul></li>
+      <li><strong>Hard exercises</strong> also come as real files in the topic's <code>practice/</code> folder, to run in your terminal.</li>
+      <li><strong>Everything works without Claude.</strong> Open this page in your browser anytime. Ask Claude only when you want new stuff or you're stuck.</li>
+    </ol>
+  </details>
+</main>
+
+<script>
+(function () {
+  const LIB = window.LIBRARY || { subjects: [] };
+  const visits = (() => { try { return JSON.parse(localStorage.getItem("learn:visits")) || {}; } catch (e) { return {}; } })();
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  function lastSeen(subject, topic) {
+    const a = topic.lastStudied || "", b = visits[subject.id + "/" + topic.id] || "";
+    return a > b ? a : b;
+  }
+  function daysSince(iso) {
+    if (!iso) return Infinity;
+    return Math.floor((Date.now() - new Date(iso + "T00:00:00").getTime()) / 86400000);
+  }
+  function rust(days) { return days < 7 ? "fresh" : days < 21 ? "fading" : "rusty"; }
+  function ago(days) {
+    if (days === Infinity) return "not opened yet";
+    if (days <= 0) return "today";
+    if (days === 1) return "yesterday";
+    if (days < 14) return days + " days ago";
+    if (days < 60) return Math.round(days / 7) + " weeks ago";
+    return Math.round(days / 30) + " months ago";
+  }
+  const base = (s, t) => s.id + "/" + t.id + "/";
+
+  function topicCard(s, t) {
+    const days = daysSince(lastSeen(s, t));
+    const lessons = t.lessons || [];
+    const firstLesson = lessons[0] ? base(s, t) + lessons[0].file : null;
+    const primary = rust(days) === "rusty"
+      ? '<a class="primary" href="' + base(s, t) + 'comeback.html">🔁 Comeback</a>'
+      : (lessons.length ? '<a class="primary" href="' + base(s, t) + lessons[lessons.length - 1].file + '">▶ Continue</a>' : "");
+    return '<div class="topic">' +
+      '<h3><i class="rust ' + rust(days) + '" title="' + rust(days) + '"></i>' + esc(t.title) + "</h3>" +
+      '<div class="when">' + lessons.length + " lesson" + (lessons.length === 1 ? "" : "s") + " · studied " + ago(days) + "</div>" +
+      (t.summary ? "<div>" + esc(t.summary) + "</div>" : "") +
+      '<div class="links">' + primary +
+        (firstLesson ? '<a href="' + firstLesson + '">📖 Lessons</a>' : "") +
+        '<a href="' + base(s, t) + 'exercises.html">✍️ Exercises</a>' +
+        (rust(days) === "rusty" ? "" : '<a href="' + base(s, t) + 'comeback.html">🔁 Comeback</a>') +
+        '<a href="' + base(s, t) + 'cheatsheet.html">📌 Cheatsheet</a>' +
+      "</div></div>";
+  }
+
+  function render() {
+    const lib = document.getElementById("library");
+    const subjects = LIB.subjects.filter((s) => (s.topics || []).length);
+    if (!subjects.length) {
+      lib.innerHTML = '<div class="empty">Nothing here yet.<br>Run <code>/learn &lt;topic&gt;</code> in Claude Code to make your first lesson.</div>';
+      document.getElementById("how").open = true;
+      return;
+    }
+    // "Continue" = most recently studied topic
+    let best = null;
+    subjects.forEach((s) => s.topics.forEach((t) => {
+      const d = daysSince(lastSeen(s, t));
+      if (!best || d < best.d) best = { s, t, d };
+    }));
+    if (best && best.t.lessons && best.t.lessons.length) {
+      const last = best.t.lessons[best.t.lessons.length - 1];
+      document.getElementById("continue").innerHTML =
+        '<div class="callout"><strong>▶ Pick up where you left off:</strong> <a href="' + base(best.s, best.t) + last.file + '">' +
+        esc(best.s.title) + " › " + esc(best.t.title) + " › " + esc(last.title) + "</a></div>";
+    }
+    lib.innerHTML = subjects.map((s) =>
+      '<section class="subject"><h2>' + esc(s.emoji || "📘") + " " + esc(s.title) + "</h2>" +
+      '<div class="topics">' + s.topics.map((t) => topicCard(s, t)).join("") + "</div></section>"
+    ).join("");
+  }
+
+  // Search across subjects, topics, lessons, key points and tags.
+  const index = [];
+  LIB.subjects.forEach((s) => (s.topics || []).forEach((t) => {
+    const b = base(s, t);
+    index.push({ title: s.title + " › " + t.title, where: "Topic", href: b + "comeback.html", text: [t.title, t.summary, (t.tags || []).join(" ")].join(" ") });
+    (t.lessons || []).forEach((l) => index.push({ title: l.title, where: s.title + " › " + t.title + " · lesson " + l.n, href: b + l.file, text: [l.title, l.summary, (l.tags || []).join(" ")].join(" ") }));
+    (t.keypoints || []).forEach((k) => index.push({ title: k, where: s.title + " › " + t.title + " · key point", href: b + "cheatsheet.html", text: k }));
+  }));
+  const results = document.getElementById("results");
+  document.getElementById("search").addEventListener("input", (e) => {
+    const words = e.target.value.toLowerCase().split(/\s+/).filter(Boolean);
+    if (!words.length) { results.hidden = true; return; }
+    const hits = index.filter((it) => words.every((w) => (it.title + " " + it.text).toLowerCase().includes(w))).slice(0, 30);
+    results.hidden = false;
+    results.innerHTML = hits.length
+      ? hits.map((h) => '<li><a href="' + h.href + '">' + esc(h.title) + "</a><small>" + esc(h.where) + "</small></li>").join("")
+      : '<li class="empty">No match. Try fewer words.</li>';
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

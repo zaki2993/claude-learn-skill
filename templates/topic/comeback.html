@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Comeback · {{TOPIC_TITLE}}</title>
+<script>try{var t=JSON.parse(localStorage.getItem("learn:theme"));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script defer src="../../assets/learn.js"></script>
+</head>
+<body data-topic="{{SUBJECT_ID}}/{{TOPIC_ID}}">
+<main>
+  <nav class="crumbs"><a href="../../index.html">📚 Library</a> › {{SUBJECT_TITLE}} › {{TOPIC_TITLE}} › Comeback</nav>
+  <h1>🔁 Back to {{TOPIC_TITLE}}</h1>
+  <p class="subtitle">You already learned this. You're not starting over, just dusting it off. 2 minutes of key points, then straight to the good stuff.</p>
+
+  <!-- STEP 1: KEY POINTS. 5–7 max across the whole topic. Each: one bold sentence + tiny visual/example
+       + link to the full lesson section. Rewrite (don't just append) as the topic grows, so it stays short. -->
+  <h2>⏱️ 1. The key points (2 min)</h2>
+  <div class="keypoints">
+    <div class="keypoint" id="kp-1">
+      <p><strong>{{ONE_SENTENCE_KEY_POINT}}</strong></p>
+      <pre><code>{{TINY_EXAMPLE}}</code></pre>
+      <span class="src">📖 <a href="01-lesson-{{SLUG}}.html#how">Full explanation: Lesson 1</a></span>
+    </div>
+  </div>
+
+  <!-- STEP 2: ONE warm-up to wake the memory. Easy, with a hint. -->
+  <h2>🔥 2. Warm-up</h2>
+  <div class="q" data-id="warm" data-answer="{{ANSWER}}">
+    <p>{{EASY_QUESTION}}</p>
+    <input class="q-input">
+    <details class="hint"><summary>💡 Peek at key point</summary><p>{{WHICH_KEY_POINT_AND_HOW}}</p></details>
+  </div>
+
+  <!-- STEP 3: HARD problems right away. Mixed across the whole topic. Each has "peek at key point" help
+       instead of a full lesson. Refresh these when "/learn" sees the topic again so they don't go stale. -->
+  <h2>💪 3. Jump back in</h2>
+  <div class="q" data-id="hard1" data-answer="{{ANSWER}}">
+    <p><span class="level boss">🔴 hard</span> {{HARD_MIXED_PROBLEM}}</p>
+    <input class="q-input">
+    <details class="keypoint-more"><summary>🔎 Peek at key point {{K}}</summary><p>{{...}}</p></details>
+    <details class="solution"><summary>✅ Full solution</summary><ol class="work"><li>{{...}}</li></ol></details>
+  </div>
+
+  <div class="callout good">🎉 <strong>Done?</strong> You're back. Go to <a href="exercises.html">✍️ Exercises</a> for more bosses, or ask <code>/learn</code> for the next lesson.</div>
+  <p class="ask-claude">📌 Need a quick lookup instead? <a href="cheatsheet.html">Open the cheatsheet</a></p>
+</main>
+</body>
+</html>
