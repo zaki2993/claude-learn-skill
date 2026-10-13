@@ -11,6 +11,7 @@ Built for ADHD brains, and nice for everyone else:
 - 🔁 **Comeback pages**: 2-minute key points, then straight to hard problems. Dust off, don't restart.
 - 🟢🟠🔴 Rust dots show which topics are fading
 - 🔎 One home page to search everything you've ever learned
+- 🎚️ 4 depth levels: ⚡ quick · 📘 normal · 🔬 deep (under the hood, edge cases, debugging) · 🧠 master (multi-part series + capstone)
 
 ## Install
 

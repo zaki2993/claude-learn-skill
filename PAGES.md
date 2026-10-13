@@ -96,18 +96,40 @@ The design is set by `style.css`: clean, calm, one column. **Don't add per-page 
 
 ## The exercise ladder
 
-Each lesson's section in `exercises.html` (normal length; quick ≈ half, deep ≈ double):
+Each lesson gets a `<section>` in `exercises.html`. **Counts depend on depth: use the table in SKILL.md §4e.**
 
-| Tier | Count | Purpose |
-|---|---|---|
-| 🧩 Guided discovery | 2 | **Teaches while doing.** Small steps that lead to an insight the harder tiers need ("try x=1, then x=2... what do you notice?"). The insight goes in `.q-why`. |
-| 🟢 Practice | 2–3 | Direct use of the lesson's method. Full solution. |
-| 🟡 Real-world | 3–4 | A realistic situation from the field (a bug, a budget, a physics setup, an API response). Hint + full solution. |
-| 🔴 Boss | 2 | Hard. Combines this lesson with earlier lessons/topics. Two layered hints + full solution with the why. |
+| Tier | Purpose |
+|---|---|
+| 🧩 Guided discovery | **Teaches while doing.** Small steps that lead to an insight the harder tiers need ("try x=1, then x=2... what do you notice?"). The insight goes in `.q-why`. |
+| 🟢 Practice | Direct use of the lesson's method. Full solution. |
+| 🟡 Real-world | A realistic situation from the field (a bug, a budget, a physics setup, an API response). Hint + full solution. |
+| 🔴 Boss | Hard. Combines this lesson with earlier lessons/topics. Two layered hints + full solution with the why. |
 
-The lesson page itself has 2–3 quick ones (🧩 + 🟢) and links here.
+Deep/Master: 🟡 and 🔴 must also hit the depth sections: an edge case, a "find the bug" on a common mistake, a debugging scenario ("here's the log/output, what's wrong?").
+
+The lesson page itself has its quick checks (🧩 + 🟢) and links to the full ladder.
 
 Every solution shows the **reasoning**, not just the answer.
+
+## Depth sections
+
+Deep and Master lessons add these `<h2>` sections between ⚙️ How it works and 🧪 Examples (Master adds the last two). Add each to the lesson's `.toc` too. Each one is **substantial**: several paragraphs, diagrams, code/math, not a single callout.
+
+```html
+<h2 id="under-the-hood">🔍 Under the hood</h2>      <!-- the real mechanism, step by step: use .steps + an SVG diagram -->
+<h2 id="edge-cases">🧨 Edge cases</h2>               <!-- ≥ 4 × .example: input → surprising result → why -->
+<h2 id="mistakes">⚠️ Common mistakes</h2>            <!-- ≥ 4 × callout.bad (wrong code/work + exact error) then callout.good (fix + why) -->
+<h2 id="debugging">🐛 Debugging it</h2>              <!-- how to make the invisible visible: logs, debugger, print the state, sanity checks -->
+<h2 id="connections">🔗 Connections</h2>             <!-- links to other lessons/topics + "learn next" -->
+<h2 id="design">🏛️ Why it's designed this way</h2>   <!-- Master: the original problem, what came before, trade-offs -->
+<h2 id="expert">🎓 Expert level</h2>                 <!-- Master: performance, security, scale, interview questions (as .q with solutions) -->
+```
+
+Master lessons are parts of a series: put a part navigator under the subtitle on every part:
+
+```html
+<ul class="toc"><li><a href="01-lesson-....html">Part 1 · ...</a></li><li><a href="02-lesson-....html"><strong>Part 2 · ...</strong></a></li>...</ul>
+```
 
 ## Practice folder
 

@@ -51,7 +51,14 @@ Never create a library without asking. Never copy `templates/topic/` files to th
 
 **Topic placement:** pick a subject folder (`math`, `coding`, `react`, `physics`...) and a topic slug (`linear-equations`). Reuse existing subjects; match the user's words to existing topics before creating new ones (e.g. "solving for x" → `math/linear-equations`).
 
-**Length:** for a new lesson, if they didn't say, ask: *"Quick (5 min), normal (10–15), or deep (25+)?"* Default to `learn.json` → `defaultLength` if they just say "go". See `lengths` in `learn.json`.
+**Depth:** for a new lesson, if they didn't say, ask with the AskUserQuestion tool. Always offer **exactly these 4 options**, in this order:
+
+1. **⚡ Quick (~5 min)**: the core idea + a couple of examples
+2. **📘 Normal (~15 min)**: the idea, properly explained and practiced
+3. **🔬 Deep (~40 min)**: how it works under the hood, edge cases, traps
+4. **🧠 Master (2h+, multi-part)**: everything: internals, design reasons, debugging, a capstone project
+
+Default to `learn.json` → `defaultLength` if they just say "go". Each level has **hard minimums** (§4e). Deep and Master are not "normal but longer". They go *down* into how and why it works.
 
 ## 3. Overview (`/learn` with nothing)
 
@@ -76,6 +83,8 @@ Open `index.html`.
 ### 4b. Pick the ONE thing
 One lesson = one idea the user can *use* by the end. Pick it from `progress.md`'s next step, or the most useful next idea for the topic. If the request is big, split it into lessons and say so: *"This is 3 lessons. Starting with X."*
 
+**Master** is the exception: it is a **series of 3–5 lesson files** (`NN-lesson-...`), built in one go, that together cover the whole concept end-to-end. Plan the parts first (e.g. Spring Security: 1. the filter chain · 2. authentication internals · 3. authorization rules · 4. JWT/sessions · 5. debugging & testing) and tell the user the plan in one line before building.
+
 ### 4c. Build the files
 In `<library>/<subject>/<topic>/`:
 
@@ -99,13 +108,44 @@ Also link the previous lesson's **Next** card to the new lesson.
 - [ ] Opens with a real problem from the field, solved at the end
 - [ ] Has a visual (interactive if the idea involves change, e.g. graphs, loops, state)
 - [ ] Every step says **why**
-- [ ] ≥ 3 worked examples, easy → hard (deep: 5+)
-- [ ] One method, no menu of alternatives
+- [ ] **Every minimum in §4e for the chosen depth is met.** Count them (`grep -c 'class="example"'`, `grep -c 'class="q"'`...). Below the minimum → keep writing. Don't finish short.
+- [ ] Worked examples go easy → hard
+- [ ] One method, no menu of alternatives (Deep/Master may compare with what it replaces, in its own section)
 - [ ] Exercises go 🧩 → 🟢 → 🟡 → 🔴, every one has hint and/or full solution
 - [ ] All `data-answer` values verified (solve every exercise yourself; for runners, run the solution against the tests with `node`/`python3`)
 - [ ] Cheat card ≤ 6 bullets, also copied into cheatsheet.html
 - [ ] All links between pages work (relative paths)
 - [ ] `library.js` updated
+
+### 4e. Depth levels: hard minimums
+
+Per lesson file (Master: per part, so a 4-part Master has 4× the lesson numbers).
+
+| | ⚡ Quick | 📘 Normal | 🔬 Deep | 🧠 Master (each part) |
+|---|---|---|---|---|
+| Time | ~5 min | ~15 min | ~40 min | ~30–45 min × 3–5 parts |
+| Worked examples | 2 | 4 | 8 | 8 |
+| Visuals | 1 | 1–2 | 3+ (≥ 1 interactive) | 3+ (≥ 1 interactive) |
+| Quick checks in lesson | 2 | 3 | 5 | 5 |
+| Exercises in `exercises.html` | 5 (🧩1 🟢2 🟡1 🔴1) | 10 (🧩2 🟢3 🟡3 🔴2) | 18 (🧩3 🟢5 🟡6 🔴4) | 18 per part |
+| Terminal tasks in `practice/` (coding) | 0 | 1 | 2 | 2 per part + 1 capstone |
+| Depth sections (below) | none | ⚠️ trap callout | all 5 | all 7 |
+
+**Depth sections** (they go between ⚙️ How it works and 🧪 Examples; markup in [PAGES.md](./PAGES.md#depth-sections)):
+
+| Section | What it covers | Deep | Master |
+|---|---|---|---|
+| 🔍 **Under the hood** | What actually happens step by step inside: the real mechanism, data flow, the code/math the tool runs. Diagrams. | ✅ | ✅ |
+| 🧨 **Edge cases** | Inputs/situations where it behaves surprisingly, and why (≥ 4) | ✅ | ✅ |
+| ⚠️ **Common mistakes** | Real errors people make, the exact error message or wrong result, the fix (≥ 4) | ✅ | ✅ |
+| 🐛 **Debugging it** | How to see what's going on when it breaks: logs, tools, the questions to ask | ✅ | ✅ |
+| 🔗 **Connections** | How it links to other concepts/topics, and what to learn next | ✅ | ✅ |
+| 🏛️ **Why it's designed this way** | The problem it was invented to solve, what came before, the trade-offs | | ✅ |
+| 🎓 **Expert level** | Performance, security, scale, interview-level questions, what seniors know | | ✅ |
+
+**Master extras:** a final **capstone** (`practice/capstone-<name>/` for coding, or a multi-step real problem on its own page for math) that uses every part. Plus a `comeback.html` that covers all parts.
+
+Depth means **going further down, not saying more words.** A Deep lesson on the Spring filter chain should show the actual filters in order, what each one does with the request, what happens when one throws, and how to print the chain. Not 3 more paragraphs of the Normal content.
 
 ## 5. More exercises / comeback
 
