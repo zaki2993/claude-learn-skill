@@ -14,19 +14,19 @@
 </head>
 <body data-topic="{{SUBJECT_ID}}/{{TOPIC_ID}}">
 <main>
-  <nav class="crumbs"><a href="../../index.html">📚 Library</a> › {{SUBJECT_TITLE}} › {{TOPIC_TITLE}} › Cheatsheet</nav>
-  <h1>📌 {{TOPIC_TITLE}}: Cheatsheet</h1>
+  <nav class="crumbs"><a href="../../index.html">Library</a> › {{SUBJECT_TITLE}} › {{TOPIC_TITLE}} › Cheatsheet</nav>
+  <h1>{{TOPIC_TITLE}}: Cheatsheet</h1>
   <p class="subtitle">Every cheat card from this topic, on one page. Ctrl+F friendly. Prints well.</p>
 
   <!-- One .cheat per lesson, same id as in the lesson (cheat-N), copied from the lesson's cheat card. -->
   <div class="cheat" id="cheat-1">
-    <h3>1 · {{LESSON_TITLE}} <a href="01-lesson-{{SLUG}}.html" style="font-size:.8rem;font-weight:400">open lesson →</a></h3>
+    <h3>1 · {{LESSON_TITLE}} <a href="01-lesson-{{SLUG}}.html" style="font-size:.8rem;font-weight:400">open lesson</a></h3>
     <ul><li>{{KEY_POINT}}</li></ul>
     <div class="formula">{{FORMULA / SYNTAX}}</div>
   </div>
 
   <!-- Optional, add once the topic has its own words: -->
-  <h2>📖 Glossary</h2>
+  <h2>Glossary</h2>
   <dl>
     <dt><strong>{{TERM}}</strong></dt><dd>{{PLAIN_ENGLISH_MEANING}} <em>(FR: {{french term if the user's sources are French}})</em></dd>
   </dl>

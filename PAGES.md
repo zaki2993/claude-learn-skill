@@ -2,11 +2,16 @@
 
 All pages live in `<library>/<subject>/<topic>/`, link `../../assets/style.css` and `../../assets/learn.js`, and set `<body data-topic="<subject>/<topic>">` (feeds the rust dots). Start every page from its template in [templates/topic/](./templates/topic/): keep the `<head>` exactly, then replace the `{{PLACEHOLDERS}}` and delete the HTML comments.
 
-The design is set by `style.css`: clean, calm, one column. **Don't add per-page CSS** unless a diagram truly needs it. If something reusable is missing, add it to `assets/style.css` / `assets/learn.js` in the library *and* in this skill's `templates/library/assets/`.
+The design is set by `style.css`: a study notebook, with cool paper, ink blue, and a yellow highlighter. `learn.js` builds the **sidebar** on every page automatically: search (Ctrl K), the library tree with "you are here", the numbered chapters of the page (from its `<h2>`s, filled in as you scroll), and progress. It also adds the big chapter numbers on lesson and comeback pages. So:
+
+- **No emoji or icons in headings, labels, buttons, or summaries.** Chapter numbers do that job. (Emoji are fine inside example content when the content is about emoji.)
+- **No hand-written table of contents, chapter numbers, or progress bars.** They're automatic.
+- Each `<h2>` is a chapter: give it a short plain title ("How it works", "Under the hood") and an `id`.
+- **Don't add per-page CSS** unless a diagram truly needs it. If something reusable is missing, add it to `assets/style.css` / `assets/learn.js` in the library *and* in this skill's `templates/library/assets/`.
 
 ## Writing style
 
-- Short paragraphs (≤ 3 lines). Bold the one phrase that matters.
+- Short paragraphs (≤ 3 lines). Wrap the one phrase that matters most in a section in `<mark>` (yellow highlighter). At most one or two per chapter, or it stops meaning anything.
 - Talk to the reader: "you", "we". Friendly, direct, no fluff, no "In this lesson we will explore...".
 - Start sections with a concrete thing (a number, a line of code, a picture), then the explanation.
 - Every step in a solution: **what** you do + `<span class="why">why: ...</span>`.
@@ -14,13 +19,23 @@ The design is set by `style.css`: clean, calm, one column. **Don't add per-page 
 - Math: `\( x^2 \)` inline, `$$ ... $$` or `\[ ... \]` for display (KaTeX). Don't use single `$`. Write it so it still reads OK as raw text if KaTeX doesn't load (offline).
 - Code: `<pre><code class="language-js">`. Escape `<`, `>`, `&` inside HTML.
 
+## Layout: vary it
+
+Pages must not be a stack of identical boxes. Pick the component that fits each piece of content:
+code to explain → `.annotated` · a comparison → `.split` · a process → `.steps` or `ol.work` · something that changes → `.interactive` · a structure → SVG diagram · the main insight → `.big-idea` · an aside → `.side-note`.
+Plain paragraphs between components are good: they give the eye a rest. Aim for at least 4 different component types per lesson.
+
 ## Components (all styled + wired by the shared assets)
 
 | Need | Markup |
 |---|---|
 | Real problem box | `<div class="problem"><p>...</p></div>` |
+| Key phrase | `<mark>...</mark>` (highlighter, sparingly) |
+| Code explained line by line | `<div class="annotated"><div class="row"><pre><code>code</code></pre><div class="note">what + why</div></div>...</div>`: code on the left, explanation beside it. **Use this instead of a code block followed by paragraphs.** |
+| Side by side | `<div class="split"><div>...</div><div>...</div></div>`: wrong vs right, before vs after, two approaches. Stacks on mobile. |
+| Margin note | `<p class="side-note">...</p>`: an aside (history, fun fact, "you'll see this again in..."). Goes into the right margin on wide screens. |
 | One-sentence big idea | `<div class="big-idea">...</div>` |
-| Callout | `<div class="callout">` · `.good` (win) · `.warn` (trap) · `.bad` (wrong way) |
+| Callout | `<div class="callout"><strong>Short title</strong> text</div>` · `.good` (win) · `.warn` (trap) · `.bad` (wrong way). The first `<strong>` becomes the callout's title. |
 | Worked example | `<div class="example"><header>Title <span class="level easy">easy</span></header><div class="body">...</div></div>` (levels: `easy` `medium` `hard`; exercise tags: `guided` `practice` `real` `boss`) |
 | Numbered solution steps | `<ol class="work"><li>do X <span class="why">why: ...</span></li></ol>` |
 | One-step-at-a-time explainer | `<div class="card steps"><div class="step">...</div>...</div>` (adds Back/Next/Show all) |
@@ -113,23 +128,19 @@ Every solution shows the **reasoning**, not just the answer.
 
 ## Depth sections
 
-Deep and Master lessons add these `<h2>` sections between ⚙️ How it works and 🧪 Examples (Master adds the last two). Add each to the lesson's `.toc` too. Each one is **substantial**: several paragraphs, diagrams, code/math, not a single callout.
+Deep and Master lessons add these `<h2>` sections between How it works and Examples (Master adds the last two). They show up in the sidebar automatically. Each one is **substantial**: several paragraphs, diagrams, code/math, not a single callout.
 
 ```html
-<h2 id="under-the-hood">🔍 Under the hood</h2>      <!-- the real mechanism, step by step: use .steps + an SVG diagram -->
-<h2 id="edge-cases">🧨 Edge cases</h2>               <!-- ≥ 4 × .example: input → surprising result → why -->
-<h2 id="mistakes">⚠️ Common mistakes</h2>            <!-- ≥ 4 × callout.bad (wrong code/work + exact error) then callout.good (fix + why) -->
-<h2 id="debugging">🐛 Debugging it</h2>              <!-- how to make the invisible visible: logs, debugger, print the state, sanity checks -->
-<h2 id="connections">🔗 Connections</h2>             <!-- links to other lessons/topics + "learn next" -->
-<h2 id="design">🏛️ Why it's designed this way</h2>   <!-- Master: the original problem, what came before, trade-offs -->
-<h2 id="expert">🎓 Expert level</h2>                 <!-- Master: performance, security, scale, interview questions (as .q with solutions) -->
+<h2 id="under-the-hood">Under the hood</h2>      <!-- the real mechanism, step by step: use .steps + an SVG diagram -->
+<h2 id="edge-cases">Edge cases</h2>               <!-- ≥ 4 × .example: input → surprising result → why -->
+<h2 id="mistakes">Common mistakes</h2>            <!-- ≥ 4 × callout.bad (wrong code/work + exact error) then callout.good (fix + why) -->
+<h2 id="debugging">Debugging it</h2>              <!-- how to make the invisible visible: logs, debugger, print the state, sanity checks -->
+<h2 id="connections">Connections</h2>             <!-- links to other lessons/topics + "learn next" -->
+<h2 id="design">Why it's designed this way</h2>   <!-- Master: the original problem, what came before, trade-offs -->
+<h2 id="expert">Expert level</h2>                 <!-- Master: performance, security, scale, interview questions (as .q with solutions) -->
 ```
 
-Master lessons are parts of a series: put a part navigator under the subtitle on every part:
-
-```html
-<ul class="toc"><li><a href="01-lesson-....html">Part 1 · ...</a></li><li><a href="02-lesson-....html"><strong>Part 2 · ...</strong></a></li>...</ul>
-```
+Master lessons are parts of a series. The sidebar lists every part, so no extra navigator is needed. Start each part's subtitle with "Part N of M:".
 
 ## Practice folder
 

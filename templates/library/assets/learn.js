@@ -32,16 +32,33 @@
   const today = () => new Date().toISOString().slice(0, 10);
   const pageKey = () => decodeURIComponent(location.pathname).replace(/\\/g, "/");
 
+  // ---------- where am I? ----------
+  // Library root, relative to this page: "../../" for topic pages, "" for the home page.
+  const SCRIPT = document.currentScript;
+  const ROOT = SCRIPT ? (SCRIPT.getAttribute("src") || "").replace(/assets\/learn\.js.*$/, "") : "";
+  const FILE = decodeURIComponent(location.pathname.split("/").pop() || "index.html");
+  const IS_LESSON = /-lesson-/.test(FILE) || FILE === "comeback.html";
+
+  function loadLibrary() {
+    if (window.LIBRARY) return Promise.resolve(window.LIBRARY);
+    return new Promise((resolve) => {
+      const s = el("script", { src: ROOT + "library.js" });
+      s.onload = () => resolve(window.LIBRARY || { subjects: [] });
+      s.onerror = () => resolve({ subjects: [] });
+      document.head.append(s);
+    });
+  }
+
   // ---------- theme ----------
   function currentTheme() {
     return document.documentElement.dataset.theme ||
       (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
   }
-  function initTheme() {
+  function themeButton() {
     const saved = store.get("learn:theme", null);
     if (saved) document.documentElement.dataset.theme = saved;
-    const btn = el("button", { class: "theme-toggle", title: "Toggle light/dark", "aria-label": "Toggle light/dark" });
-    const paint = () => { btn.textContent = currentTheme() === "dark" ? "☀️" : "🌙"; };
+    const btn = el("button", { type: "button", class: "theme-toggle", "aria-label": "Switch light/dark" });
+    const paint = () => { btn.textContent = currentTheme() === "dark" ? "Light mode" : "Dark mode"; };
     btn.addEventListener("click", () => {
       const next = currentTheme() === "dark" ? "light" : "dark";
       document.documentElement.dataset.theme = next;
@@ -50,7 +67,181 @@
       $$("svg.plot").forEach((svg) => svg.__redraw && svg.__redraw());
     });
     paint();
-    document.body.append(btn);
+    return btn;
+  }
+
+  // ---------- chapters: numbered h2s on lesson pages ----------
+  const stripIcon = (s) => s.replace(/^[\s\p{Extended_Pictographic}\u{1F1E6}-\u{1F1FF}️‍]+/u, "");
+  function initChapters() {
+    const main = document.querySelector("main");
+    if (!main) return [];
+    // Old pages put emoji in front of headings, breadcrumbs and meta: drop them.
+    $$(".crumbs a, .crumbs, .pill, h1, h3, summary, .callout > strong:first-child", main).forEach((n) => {
+      const first = n.firstChild;
+      if (first && first.nodeType === 3) first.textContent = stripIcon(first.textContent);
+    });
+    if (document.body.classList.contains("home")) return [];
+    const heads = $$("h2", main);
+    heads.forEach((h) => {
+      const first = h.firstChild;
+      if (first && first.nodeType === 3) first.textContent = stripIcon(first.textContent);
+    });
+    return heads.map((h, i) => {
+      if (!h.id) h.id = "ch-" + (i + 1);
+      const num = String(i + 1).padStart(2, "0");
+      if (IS_LESSON) {
+        h.classList.add("chapter");
+        h.prepend(el("span", { class: "ch-num", "aria-hidden": "true", text: num }));
+      }
+      return { h, num, title: h.textContent.replace(/^\d\d/, "").trim() };
+    });
+  }
+
+  // ---------- search (sidebar + home page) ----------
+  let searchIndex = [];
+  function buildIndex(lib) {
+    searchIndex = [];
+    (lib.subjects || []).forEach((s) => (s.topics || []).forEach((t) => {
+      const b = ROOT + s.id + "/" + t.id + "/";
+      searchIndex.push({ title: t.title, where: s.title + " · topic", href: b + "comeback.html", text: [t.title, t.summary, (t.tags || []).join(" ")].join(" ") });
+      (t.lessons || []).forEach((l) => searchIndex.push({ title: l.title, where: t.title + " · lesson " + l.n, href: b + l.file, text: [l.title, l.summary, (l.tags || []).join(" ")].join(" ") }));
+      (t.keypoints || []).forEach((k) => searchIndex.push({ title: k, where: t.title + " · key point", href: b + "cheatsheet.html", text: k }));
+    }));
+  }
+  function search(query) {
+    const words = query.toLowerCase().split(/\s+/).filter(Boolean);
+    if (!words.length) return [];
+    return searchIndex.filter((it) => words.every((w) => (it.title + " " + it.text).toLowerCase().includes(w))).slice(0, 30);
+  }
+
+  // ---------- sidebar shell ----------
+  let sidebarParts = null;
+  function buildShell(chapters) {
+    const main = document.querySelector("main");
+    if (!main) return;
+    document.body.classList.add("has-sidebar");
+
+    const shell = el("div", { class: "shell" });
+    const side = el("aside", { class: "sidebar", "aria-label": "Library navigation" });
+    main.before(shell);
+    shell.append(side, main);
+
+    // Brand + search
+    const brand = el("a", { class: "sb-brand", href: ROOT + "index.html", text: "Library" });
+    const input = el("input", { type: "search", placeholder: "Search everything", "aria-label": "Search the library", autocomplete: "off" });
+    const results = el("ul", { class: "sb-results", hidden: "" });
+    const searchBox = el("div", { class: "sb-search" }, input, el("kbd", { text: "Ctrl K" }), results);
+
+    const treeWrap = el("nav", {}, el("p", { class: "sb-label", text: "Topics" }));
+    const tree = el("ul", { class: "sb-tree" });
+    treeWrap.append(tree);
+
+    side.append(brand, searchBox);
+
+    // On this page
+    let chapterLinks = [];
+    if (chapters.length > 1) {
+      const list = el("ul", { class: "sb-chapters" });
+      chapterLinks = chapters.map((c) => {
+        const a = el("a", { href: "#" + c.h.id }, el("span", { text: c.num }), el("span", { text: c.title }));
+        a.addEventListener("click", () => document.body.classList.remove("nav-open"));
+        list.append(el("li", {}, a));
+        return a;
+      });
+      side.append(el("div", {}, el("p", { class: "sb-label", text: "On this page" }), list));
+    }
+
+    // Progress (filled by initProgress)
+    const progress = el("div", { class: "sb-progress", hidden: "" });
+    side.append(progress, treeWrap, el("div", { class: "sb-foot" }, themeButton()));
+
+    // Mobile top bar
+    const menuBtn = el("button", { type: "button", "aria-label": "Open navigation", text: "Menu" });
+    menuBtn.addEventListener("click", () => document.body.classList.toggle("nav-open"));
+    const h1 = main.querySelector("h1");
+    const tbFill = el("div", { class: "tb-fill" });
+    const topbar = el("div", { class: "topbar" }, menuBtn, el("span", { class: "tb-title", text: h1 ? stripIcon(h1.textContent) : "Library" }), el("div", { class: "tb-track" }, tbFill));
+    shell.before(topbar);
+    document.addEventListener("click", (e) => {
+      if (document.body.classList.contains("nav-open") && !side.contains(e.target) && !topbar.contains(e.target)) document.body.classList.remove("nav-open");
+    });
+
+    // Search behaviour
+    let sel = -1;
+    const paintResults = () => {
+      const hits = search(input.value);
+      sel = -1;
+      results.hidden = !input.value.trim();
+      treeWrap.hidden = !results.hidden;
+      results.innerHTML = "";
+      if (!hits.length) { results.append(el("li", { class: "empty", text: "No match. Try fewer words." })); return; }
+      hits.forEach((h) => results.append(el("li", {}, el("a", { href: h.href }, h.title, el("small", { text: h.where })))));
+    };
+    input.addEventListener("input", paintResults);
+    input.addEventListener("keydown", (e) => {
+      const links = $$("a", results);
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        sel = Math.max(0, Math.min(links.length - 1, sel + (e.key === "ArrowDown" ? 1 : -1)));
+        links.forEach((a, k) => a.classList.toggle("sel", k === sel));
+      } else if (e.key === "Enter" && links.length) {
+        location.href = links[Math.max(0, sel)].getAttribute("href");
+      } else if (e.key === "Escape") {
+        input.value = ""; paintResults(); input.blur();
+      }
+    });
+    document.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        document.body.classList.add("nav-open");
+        input.focus();
+      }
+    });
+
+    // Scroll-spy: chapters you've passed fill in.
+    if (chapterLinks.length && "IntersectionObserver" in window) {
+      const spy = () => {
+        let current = 0;
+        chapters.forEach((c, i) => { if (c.h.getBoundingClientRect().top < window.innerHeight * 0.35) current = i; });
+        chapterLinks.forEach((a, i) => { a.classList.toggle("passed", i < current); a.classList.toggle("current", i === current); });
+      };
+      window.addEventListener("scroll", spy, { passive: true });
+      spy();
+    }
+
+    sidebarParts = { tree, progress, tbFill };
+  }
+
+  function fillTree(lib) {
+    if (!sidebarParts) return;
+    const here = document.body.dataset.topic || "";
+    const tree = sidebarParts.tree;
+    (lib.subjects || []).filter((s) => (s.topics || []).length).forEach((s) => {
+      const inSubject = here.startsWith(s.id + "/");
+      const topics = el("ul");
+      s.topics.forEach((t) => {
+        const isHere = here === s.id + "/" + t.id;
+        const b = ROOT + s.id + "/" + t.id + "/";
+        const pages = el("ul", { class: "sb-pages" });
+        const link = (file, text) => {
+          const a = el("a", { href: b + file, text });
+          if (isHere && FILE === file) { a.classList.add("here"); a.setAttribute("aria-current", "page"); }
+          pages.append(el("li", {}, a));
+        };
+        (t.lessons || []).forEach((l) => link(l.file, l.n + ". " + l.title));
+        pages.append(el("li", { class: "sb-sep", "aria-hidden": "true" }));
+        link("exercises.html", "Exercises");
+        link("comeback.html", "Comeback review");
+        link("cheatsheet.html", "Cheatsheet");
+        const d = el("details", { class: "sb-topic" }, el("summary", { text: t.title }), pages);
+        if (isHere) d.open = true;
+        topics.append(el("li", {}, d));
+      });
+      const d = el("details", { class: "sb-subject" }, el("summary", { text: s.title }), topics);
+      if (inSubject || !here) d.open = true;
+      tree.append(el("li", {}, d));
+    });
+    if (!tree.children.length) tree.append(el("li", { class: "empty", text: "Nothing yet. Run /learn <topic>." }));
   }
 
   // ---------- visits (feeds the rust dots on the home page) ----------
@@ -62,7 +253,7 @@
     store.set("learn:visits", visits);
   }
 
-  // ---------- solved tracking + progress bar ----------
+  // ---------- solved tracking + progress ----------
   const solvedKey = () => "learn:solved:" + pageKey();
   function markSolved(id) {
     const solved = store.get(solvedKey(), {});
@@ -71,28 +262,29 @@
   }
   const isSolved = (id) => Boolean(store.get(solvedKey(), {})[id]);
 
-  let progressBar = null;
+  let progressUI = null;
   function initProgress() {
     const items = $$(".q, .runner");
-    if (items.length < 2) return;
-    const fill = el("div", { class: "progress-fill" });
-    const label = el("span");
-    const reset = el("button", { class: "ghost", title: "Clear your answers on this page", text: "↺" });
+    if (items.length < 2 || !sidebarParts) return;
+    const box = sidebarParts.progress;
+    const label = el("div");
+    const fill = el("div", { class: "sb-fill" });
+    const reset = el("button", { type: "button", class: "ghost", text: "Reset answers" });
     reset.addEventListener("click", () => {
-      if (confirm("Reset your progress on this page?")) { store.set(solvedKey(), {}); location.reload(); }
+      if (confirm("Clear your answers on this page?")) { store.set(solvedKey(), {}); location.reload(); }
     });
-    progressBar = { fill, label, total: items.length };
-    const bar = el("div", { class: "progress" }, label, el("div", { class: "progress-track" }, fill), reset);
-    const h1 = document.querySelector("main h1");
-    (h1 && h1.parentElement === document.querySelector("main") ? h1 : document.querySelector("main").firstChild)
-      .after(bar);
+    box.append(el("p", { class: "sb-label", text: "Your progress" }), label, el("div", { class: "sb-track" }, fill), reset);
+    box.hidden = false;
+    progressUI = { label, fill, total: items.length };
     updateProgress();
   }
   function updateProgress() {
-    if (!progressBar) return;
+    if (!progressUI) return;
     const done = $$(".q, .runner").filter((n) => isSolved(n.dataset.id)).length;
-    progressBar.label.textContent = (done === progressBar.total ? "🏆 " : "✅ ") + done + " / " + progressBar.total + " solved";
-    progressBar.fill.style.width = (100 * done / progressBar.total) + "%";
+    const pct = (100 * done / progressUI.total) + "%";
+    progressUI.label.innerHTML = "<b>" + done + " / " + progressUI.total + "</b> solved" + (done === progressUI.total ? ". All done!" : "");
+    progressUI.fill.style.width = pct;
+    sidebarParts.tbFill.style.width = pct;
   }
 
   // ---------- answer checking ----------
@@ -124,7 +316,7 @@
         q.classList.toggle("correct", ok);
         q.classList.toggle("wrong", !ok);
         feedback.className = "q-feedback " + (ok ? "ok" : "no");
-        feedback.textContent = ok ? "✅ Correct!" : "❌ Not yet. Try again, or open a hint.";
+        feedback.textContent = ok ? "Correct." : "Not yet. Try again, or open a hint.";
         if (ok) markSolved(q.dataset.id);
       };
 
@@ -159,7 +351,7 @@
 
       const why = q.querySelector(".q-why");
       if (why) feedback.after(why);
-      if (isSolved(q.dataset.id)) { q.classList.add("correct"); feedback.className = "q-feedback ok"; feedback.textContent = "✅ Solved before"; }
+      if (isSolved(q.dataset.id)) { q.classList.add("correct"); feedback.className = "q-feedback ok"; feedback.textContent = "Solved before."; }
     });
   }
 
@@ -237,8 +429,8 @@
       area.spellcheck = false;
 
       const out = el("pre", { class: "runner-out", "aria-live": "polite" });
-      const runBtn = el("button", { type: "button", text: "▶ Run" });
-      const resetBtn = el("button", { type: "button", class: "ghost", text: "↺ Reset code" });
+      const runBtn = el("button", { type: "button", text: "Run" });
+      const resetBtn = el("button", { type: "button", class: "ghost", text: "Reset code" });
       const langTag = el("span", { class: "runner-lang", text: lang === "py" || lang === "python" ? "Python · Ctrl+Enter" : "JavaScript · Ctrl+Enter" });
       area.after(el("div", { class: "runner-bar" }, runBtn, resetBtn, langTag), out);
 
@@ -299,14 +491,16 @@
       if (!steps.length) return;
       let i = 0;
       const count = el("span", { class: "steps-count" });
-      const prev = el("button", { type: "button", class: "ghost", text: "← Back" });
-      const next = el("button", { type: "button", text: "Next step →" });
+      const dots = el("span", { class: "steps-dots", "aria-hidden": "true" }, ...steps.map(() => el("i")));
+      const prev = el("button", { type: "button", class: "ghost", text: "Back" });
+      const next = el("button", { type: "button", text: "Next step" });
       const all = el("button", { type: "button", class: "ghost", text: "Show all" });
       const paint = () => {
         steps.forEach((s, k) => s.classList.toggle("active", k === i));
         prev.disabled = i === 0;
         next.disabled = i === steps.length - 1;
-        count.textContent = "Step " + (i + 1) + " / " + steps.length;
+        count.textContent = (i + 1) + " of " + steps.length;
+        Array.from(dots.children).forEach((d, k) => d.classList.toggle("on", k <= i));
       };
       prev.addEventListener("click", () => { i = Math.max(0, i - 1); paint(); });
       next.addEventListener("click", () => { i = Math.min(steps.length - 1, i + 1); paint(); });
@@ -314,7 +508,7 @@
         const on = wrap.classList.toggle("show-all");
         all.textContent = on ? "One at a time" : "Show all";
       });
-      wrap.append(el("div", { class: "steps-nav" }, prev, next, all, count));
+      wrap.append(el("div", { class: "steps-nav" }, prev, next, all, dots, count));
       paint();
     });
   }
@@ -423,10 +617,11 @@
   }
 
   // Public API for page-specific scripts.
-  window.Learn = { store, el, answerMatches, markSolved, drawPlot };
+  window.Learn = { store, el, answerMatches, markSolved, drawPlot, search, root: ROOT };
 
   function boot() {
-    initTheme();
+    const chapters = initChapters();
+    buildShell(chapters);
     recordVisit();
     initLibs();
     initQuizzes();
@@ -435,6 +630,7 @@
     initInteractive();
     initCopy();
     initProgress();
+    loadLibrary().then((lib) => { buildIndex(lib); fillTree(lib); });
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();

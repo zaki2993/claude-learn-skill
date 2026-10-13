@@ -14,9 +14,9 @@
 </head>
 <body data-topic="{{SUBJECT_ID}}/{{TOPIC_ID}}">
 <main>
-  <nav class="crumbs"><a href="../../index.html">📚 Library</a> › {{SUBJECT_TITLE}} › {{TOPIC_TITLE}} › Exercises</nav>
-  <h1>✍️ {{TOPIC_TITLE}}: Exercises</h1>
-  <p class="subtitle">🧩 guided (you learn while doing) → 🟢 practice → 🟡 real-world → 🔴 boss. Answers are checked instantly.</p>
+  <nav class="crumbs"><a href="../../index.html">Library</a> › {{SUBJECT_TITLE}} › {{TOPIC_TITLE}} › Exercises</nav>
+  <h1>{{TOPIC_TITLE}}: Exercises</h1>
+  <p class="subtitle">Guided problems teach you something new, then practice, real-world, and boss problems. Answers are checked instantly.</p>
   <ul class="toc">
     <li><a href="#lesson-1">Lesson 1</a></li>
     <!-- one entry per lesson section, plus extra sections added by "/learn more ..." -->
@@ -24,63 +24,63 @@
 
   <!-- ===== One <section> per lesson. New lessons and "/learn more" APPEND sections; never delete old ones. ===== -->
   <section id="lesson-1">
-    <h2>📖 Lesson 1: {{LESSON_TITLE}}</h2>
+    <h2>Lesson 1: {{LESSON_TITLE}}</h2>
     <p><a href="01-lesson-{{SLUG}}.html">Open the lesson</a> · <a href="cheatsheet.html#cheat-1">Cheat card</a></p>
 
-    <h3>🧩 Guided discovery</h3>
+    <h3>Guided discovery</h3>
     <!-- Teaches something NEW while you do it: small steps, "what do you notice?", leads to an insight
          that's needed for the harder ones. State the insight in .q-why once solved. -->
     <div class="q" data-id="l1-g1" data-answer="{{ANSWER}}">
       <p>{{STEP_BY_STEP_QUESTION}}</p>
       <input class="q-input">
-      <details class="hint"><summary>💡 Hint</summary><p>{{HINT}}</p></details>
-      <p class="q-why">💡 <strong>Notice:</strong> {{THE_INSIGHT}}</p>
+      <details class="hint"><summary>Hint</summary><p>{{HINT}}</p></details>
+      <p class="q-why"><strong>Notice:</strong> {{THE_INSIGHT}}</p>
     </div>
 
-    <h3>🟢 Practice</h3>
+    <h3>Practice</h3>
     <div class="q" data-id="l1-p1" data-answer="{{ANSWER}}">
       <p>{{QUESTION}}</p>
       <input class="q-input">
-      <details class="solution"><summary>✅ Full solution</summary><ol class="work"><li>{{...}}</li></ol></details>
+      <details class="solution"><summary>Full solution</summary><ol class="work"><li>{{...}}</li></ol></details>
     </div>
 
-    <h3>🟡 Real-world</h3>
+    <h3>Real-world</h3>
     <div class="q" data-id="l1-r1" data-answer="{{ANSWER}}">
       <p>{{REAL_SITUATION_FROM_THE_FIELD}}</p>
       <input class="q-input">
-      <details class="hint"><summary>💡 Hint</summary><p>{{HINT}}</p></details>
-      <details class="solution"><summary>✅ Full solution</summary><ol class="work"><li>{{...}}</li></ol></details>
+      <details class="hint"><summary>Hint</summary><p>{{HINT}}</p></details>
+      <details class="solution"><summary>Full solution</summary><ol class="work"><li>{{...}}</li></ol></details>
     </div>
 
     <!-- Coding topics: in-browser runner (JS or Python only). Tests are JSON: call expression + expected value. -->
     <div class="runner" data-id="l1-c1" data-lang="js">
-      <p><span class="level real">🟡 real-world</span> {{TASK}}</p>
+      <p><span class="level real">real-world</span> {{TASK}}</p>
       <textarea class="runner-code">function {{fn}}({{args}}) {
   // your code here
 }</textarea>
       <script type="application/json" class="runner-tests">[
         {"call": "{{fn}}(1, 2)", "expect": 3}
       ]</script>
-      <details class="solution"><summary>✅ Solution</summary><pre><code class="language-js">{{SOLUTION}}</code></pre><p>{{WHY_IT_WORKS}}</p></details>
+      <details class="solution"><summary>Solution</summary><pre><code class="language-js">{{SOLUTION}}</code></pre><p>{{WHY_IT_WORKS}}</p></details>
     </div>
 
-    <h3>🔴 Boss</h3>
+    <h3>Boss</h3>
     <!-- Hard. Mixes in older lessons/topics. Hints in layers. Full solution with the WHY at every step.
          For coding: also put it in practice/ so it runs in the terminal. -->
     <div class="q" data-id="l1-b1" data-answer="{{ANSWER}}">
       <p>{{HARD_PROBLEM}}</p>
       <input class="q-input">
-      <details class="hint"><summary>💡 Hint 1: where to start</summary><p>{{...}}</p></details>
-      <details class="hint"><summary>💡 Hint 2: the key move</summary><p>{{...}}</p></details>
-      <details class="solution"><summary>✅ Full solution</summary><ol class="work"><li>{{...}}</li></ol></details>
+      <details class="hint"><summary>Hint 1: where to start</summary><p>{{...}}</p></details>
+      <details class="hint"><summary>Hint 2: the key move</summary><p>{{...}}</p></details>
+      <details class="solution"><summary>Full solution</summary><ol class="work"><li>{{...}}</li></ol></details>
     </div>
     <!-- Terminal boss (non-browser languages, or bigger tasks): -->
     <div class="card">
-      <p><span class="level boss">🔴 boss · terminal</span> {{TASK}}</p>
+      <p><span class="level boss">boss · terminal</span> {{TASK}}</p>
       <pre class="cmd"><code>cd {{SUBJECT_ID}}/{{TOPIC_ID}}/practice/{{NN-name}}
 {{RUN_COMMAND e.g. node test.js}}</code></pre>
-      <p>✅ Done when: {{CHECKLIST: what the output must show}}</p>
-      <details class="solution"><summary>✅ Solution</summary><p>See <code>practice/{{NN-name}}/solution.{{ext}}</code>, but try first!</p></details>
+      <p><strong>Done when:</strong> {{CHECKLIST: what the output must show}}</p>
+      <details class="solution"><summary>Solution</summary><p>See <code>practice/{{NN-name}}/solution.{{ext}}</code>, but try first!</p></details>
     </div>
   </section>
 

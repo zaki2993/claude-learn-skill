@@ -15,33 +15,26 @@
 </head>
 <body data-topic="{{SUBJECT_ID}}/{{TOPIC_ID}}">
 <main>
-  <nav class="crumbs"><a href="../../index.html">📚 Library</a> › {{SUBJECT_TITLE}} › {{TOPIC_TITLE}} › Lesson {{N}}</nav>
+  <nav class="crumbs"><a href="../../index.html">Library</a> › {{SUBJECT_TITLE}} › {{TOPIC_TITLE}} › Lesson {{N}}</nav>
   <h1>{{LESSON_TITLE}}</h1>
   <p class="subtitle">{{ONE_SENTENCE_PROMISE: what you'll be able to do after this lesson}}</p>
   <div class="meta">
-    <span class="pill">⏱ {{MINUTES}} min</span>
-    <span class="pill">🧠 needs: {{PREREQ or "nothing"}}</span>
-    <span class="pill">📅 {{DATE}}</span>
+    <span class="pill">{{MINUTES}} min</span>
+    <span class="pill">Needs: {{PREREQ or "nothing"}}</span>
+    <span class="pill">{{DEPTH: Quick / Normal / Deep / Master}}</span>
   </div>
-  <ul class="toc">
-    <li><a href="#problem">🎯 Problem</a></li>
-    <li><a href="#picture">🖼️ Picture</a></li>
-    <li><a href="#how">⚙️ How it works</a></li>
-    <li><a href="#examples">🧪 Examples</a></li>
-    <li><a href="#solve">🛠️ Solve it</a></li>
-    <li><a href="#your-turn">✍️ Your turn</a></li>
-    <li><a href="#cheat">📌 Cheat card</a></li>
-  </ul>
+  <!-- No table of contents needed: learn.js builds the sidebar (library tree + numbered chapters + progress)
+       from the <h2>s. Chapter numbers are added automatically. Never put emoji in headings. -->
 
   <!-- 1. THE PROBLEM: a real problem from this field that we can't solve yet. Short. Concrete numbers/code. -->
-  <h2 id="problem">🎯 The problem</h2>
+  <h2 id="problem">The problem</h2>
   <div class="problem">
     <p>{{REAL_PROBLEM}}</p>
   </div>
   <p>{{WHY_YOU_CANT_SOLVE_IT_YET: one or two lines}}</p>
 
   <!-- 2. THE PICTURE: the idea as a visual. Inline SVG diagram, or an .interactive block (sliders/plot/stepper). -->
-  <h2 id="picture">🖼️ The picture</h2>
+  <h2 id="picture">The picture</h2>
   <div class="interactive">
     <!-- example: <svg class="plot" data-fn="a*x+b" data-x="-10,10" data-y="-10,10"></svg> -->
     <div class="controls">
@@ -50,23 +43,33 @@
   </div>
   <p class="caption">{{WHAT_TO_NOTICE: tell them what to play with and what to look for}}</p>
   <div class="big-idea">{{THE_BIG_IDEA in one sentence}}</div>
+  <!-- Use <mark> for the ONE phrase per section that matters most (yellow highlighter). Sparingly. -->
 
   <!-- 3. HOW IT WORKS: the WHY, built step by step. Use .steps for anything with more than 3 steps.
           ONE direct method. Mention another way only in a short callout, and only if it truly helps. -->
-  <h2 id="how">⚙️ How it works</h2>
+  <h2 id="how">How it works</h2>
   <div class="card steps">
     <div class="step"><p><strong>Step 1.</strong> {{...}}</p></div>
     <div class="step"><p><strong>Step 2.</strong> {{...}}</p></div>
     <div class="step"><p><strong>Step 3.</strong> {{...}}</p></div>
   </div>
-  <div class="callout warn"><strong>⚠️ Classic trap:</strong> {{THE_MISTAKE_EVERYONE_MAKES and why it's wrong}}</div>
+  <!-- Code topics: explain code with .annotated (code left, what + why right, row by row). -->
+  <div class="annotated">
+    <div class="row"><pre><code class="language-js">{{LINE(S) OF CODE}}</code></pre><div class="note">{{WHAT IT DOES + WHY}}</div></div>
+  </div>
+  <!-- Compare wrong vs right (or before vs after) with .split -->
+  <div class="split">
+    <div class="callout bad"><strong>Wrong</strong>{{...}}</div>
+    <div class="callout good"><strong>Right</strong>{{...}}</div>
+  </div>
+  <div class="callout warn"><strong>Classic trap</strong> {{THE_MISTAKE_EVERYONE_MAKES and why it's wrong}}</div>
 
   <!-- DEEP / MASTER ONLY: depth sections go here (see PAGES.md#depth-sections and the minimums in SKILL.md §4e).
-       🔍 under-the-hood · 🧨 edge-cases · ⚠️ mistakes · 🐛 debugging · 🔗 connections
-       + Master: 🏛️ design · 🎓 expert. Add each to the .toc above. -->
+       under-the-hood, edge-cases, mistakes, debugging, connections
+       + Master: design, expert. No emoji in headings. -->
 
   <!-- 4. EXAMPLES: 3+ worked examples, easy → harder. Every step shows WHAT and WHY. -->
-  <h2 id="examples">🧪 Examples</h2>
+  <h2 id="examples">Examples</h2>
   <div class="example">
     <header>Example 1: {{TITLE}} <span class="level easy">easy</span></header>
     <div class="body">
@@ -87,22 +90,22 @@
   </div>
 
   <!-- 5. SOLVE THE PROBLEM: go back to section 1 and crush it with what we just learned. -->
-  <h2 id="solve">🛠️ Solving the problem</h2>
+  <h2 id="solve">Solving the problem</h2>
   <ol class="work">
     <li>{{...}} <span class="why">why: {{...}}</span></li>
   </ol>
-  <div class="callout good">🎉 <strong>Win:</strong> {{WHAT_YOU_CAN_NOW_DO}}</div>
+  <div class="callout good"><strong>You can now</strong> {{WHAT_YOU_CAN_NOW_DO}}</div>
 
   <!-- 6. YOUR TURN: 3–4 quick checks (guided → practice). The full ladder lives in exercises.html. -->
-  <h2 id="your-turn">✍️ Your turn</h2>
+  <h2 id="your-turn">Your turn</h2>
   <div class="q" data-answer="{{ANSWER|ALT_ANSWER}}">
-    <p><span class="level guided">🧩 guided</span> {{QUESTION}}</p>
+    <p><span class="level guided">Guided</span> {{QUESTION}}</p>
     <input class="q-input" placeholder="{{HINT_FORMAT e.g. x = ?}}">
-    <details class="hint"><summary>💡 Hint</summary><p>{{HINT}}</p></details>
+    <details class="hint"><summary>Hint</summary><p>{{HINT}}</p></details>
     <p class="q-why">{{WHY_THIS_IS_RIGHT}}</p>
   </div>
   <div class="q" data-answer="b">
-    <p><span class="level practice">🟢 practice</span> {{QUESTION}}</p>
+    <p><span class="level practice">Practice</span> {{QUESTION}}</p>
     <ul class="q-choices">
       <li data-opt="a">{{OPTION}}</li>
       <li data-opt="b">{{OPTION}}</li>
@@ -110,10 +113,10 @@
     </ul>
     <p class="q-why">{{WHY}}</p>
   </div>
-  <p>👉 More in <a href="exercises.html#lesson-{{N}}">✍️ Exercises: Lesson {{N}}</a>, all the way up to the 🔴 boss.</p>
+  <p>More in <a href="exercises.html#lesson-{{N}}">Exercises for lesson {{N}}</a>, all the way up to the boss problems.</p>
 
   <!-- 7. CHEAT CARD: the thing they'll read in 3 months. Max ~6 bullets. Copied into cheatsheet.html. -->
-  <h2 id="cheat">📌 Cheat card</h2>
+  <h2 id="cheat">Cheat card</h2>
   <div class="cheat" id="cheat-{{N}}">
     <h3>{{LESSON_TITLE}}</h3>
     <ul>
@@ -123,12 +126,12 @@
   </div>
 
   <!-- 8. NEXT -->
-  <h2 id="next">➡️ Next</h2>
+  <h2 id="next">Next</h2>
   <div class="next-nav">
-    <a href="exercises.html#lesson-{{N}}"><small>Practice now</small>✍️ Exercises</a>
+    <a href="exercises.html#lesson-{{N}}"><small>Practice now</small>Exercises</a>
     <a href="{{NEXT_LESSON_FILE or comeback.html}}"><small>Next lesson</small>{{NEXT_TITLE or "Coming soon: ask /learn"}}</a>
   </div>
-  <p>📚 <strong>Go deeper:</strong> <a href="{{BEST_SOURCE_URL}}">{{BEST_SOURCE_NAME}}</a>, {{WHY_THIS_SOURCE}}</p>
+  <p><strong>Go deeper:</strong> <a href="{{BEST_SOURCE_URL}}">{{BEST_SOURCE_NAME}}</a>, {{WHY_THIS_SOURCE}}</p>
   <p class="ask-claude">Stuck or curious? Ask Claude: <code>/learn {{TOPIC_TITLE}}: &lt;your question&gt;</code></p>
 </main>
 </body>

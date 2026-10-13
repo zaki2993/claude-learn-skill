@@ -28,6 +28,7 @@ The library is any folder containing `learn.json`.
 
 1. Look for `learn.json` in the current directory, then its parents.
 2. **Found:** that folder is the library root. Read `learn.json` (settings + `notes` = the user's teaching preferences).
+   **Upgrade check:** compare the library's `assets/style.css`, `assets/learn.js` and `index.html` with this skill's [templates/library/](./templates/library/) (`cmp`). If they differ, copy the skill's versions over silently. These files are owned by the skill, never edited per library, so this is how old libraries get design fixes. Never overwrite `library.js` or `learn.json`.
 3. **Not found:** ask once: *"No library here. Create one in `<cwd>`?"* On yes:
    - Copy everything in [templates/library/](./templates/library/) into it (`index.html`, `library.js`, `learn.json`, `assets/`).
    - Open `index.html` in the browser (see §7).
@@ -51,14 +52,14 @@ Never create a library without asking. Never copy `templates/topic/` files to th
 
 **Topic placement:** pick a subject folder (`math`, `coding`, `react`, `physics`...) and a topic slug (`linear-equations`). Reuse existing subjects; match the user's words to existing topics before creating new ones (e.g. "solving for x" → `math/linear-equations`).
 
-**Depth:** for a new lesson, if they didn't say, ask with the AskUserQuestion tool. Always offer **exactly these 4 options**, in this order:
+**Depth: ALWAYS ask. Every single lesson.** New topic, next lesson, "continue", a redo: before building any lesson file, ask with the AskUserQuestion tool. Even if you asked earlier in this session, even if `progress.md` shows what they picked last time, even if the request seems obvious. The **only** exception: the user's message itself names a depth ("deep lesson on X", "quick one on Y"). Skipping this question is a bug. Offer **exactly these 4 options**, in this order:
 
 1. **⚡ Quick (~5 min)**: the core idea + a couple of examples
 2. **📘 Normal (~15 min)**: the idea, properly explained and practiced
 3. **🔬 Deep (~40 min)**: how it works under the hood, edge cases, traps
 4. **🧠 Master (2h+, multi-part)**: everything: internals, design reasons, debugging, a capstone project
 
-Default to `learn.json` → `defaultLength` if they just say "go". Each level has **hard minimums** (§4e). Deep and Master are not "normal but longer". They go *down* into how and why it works.
+Add "(Recommended)" to the option matching `learn.json` → `defaultLength`, and keep the order. Each level has **hard minimums** (§4e). Deep and Master are not "normal but longer". They go *down* into how and why it works.
 
 ## 3. Overview (`/learn` with nothing)
 
@@ -72,6 +73,7 @@ Open `index.html`.
 ## 4. Make a lesson
 
 ### 4a. Gather context (fast)
+0. **Depth asked?** If you haven't asked the depth question for *this* lesson (§2), stop and ask it now.
 1. Read `<subject>/<topic>/progress.md` if it exists: struggles, what clicked, the planned next step.
 2. Look at the existing lessons in the topic (titles, cheat cards) so you build on them and don't repeat.
 3. **Sources:** if `<subject>/<topic>/sources/` (or `<subject>/sources/`) has files (PDF, notes, exercise sheets), read the relevant parts and teach **their** way: same notation, same method, same terms. If the user mentions class material elsewhere, ask for the path.
