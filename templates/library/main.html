@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Learning Library</title>
+<script>try{var t=JSON.parse(localStorage.getItem("learn:theme"));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="assets/style.css">
+<script src="library.js"></script>
+<script src="assets/learn.js" defer></script>
+</head>
+<body class="home">
+<main>
+  <header class="home-head">
+    <h1>Your library</h1>
+    <p class="subtitle" id="stats">Everything you've learned, in one place.</p>
+  </header>
+
+  <div id="continue"></div>
+
+  <div class="finder">
+    <input class="search" id="search" type="search" placeholder="Filter topics and lessons, or search key points" autocomplete="off" aria-label="Filter the library">
+    <div class="finder-bar">
+      <div class="tabs" id="tabs" role="tablist" aria-label="Subjects"></div>
+      <label class="sort">Sort
+        <select id="sort">
+          <option value="recent">Recently studied</option>
+          <option value="az">A to Z</option>
+          <option value="rusty">Needs review first</option>
+        </select>
+      </label>
+    </div>
+  </div>
+
+  <div id="library"></div>
+  <div id="keypoint-hits"></div>
+
+  <div class="legend">
+    <span><i class="rust fresh"></i> studied this week</span>
+    <span><i class="rust fading"></i> 1 to 3 weeks ago</span>
+    <span><i class="rust rusty"></i> 3+ weeks: open its review</span>
+  </div>
+
+  <details id="how" class="how">
+    <summary>How this works</summary>
+    <ol>
+      <li>This page is the start of everything. Bookmark it.</li>
+      <li>To add material, run <code>claude</code> in this folder, then <code>/learn</code> plus what you want, in plain words:
+        <pre><code>/learn linear equations
+/learn next lesson on react hooks
+/learn more hard problems on vectors
+/learn I forgot how SQL joins work</code></pre>
+        It always asks how deep to go: quick, normal, deep, or master.</li>
+      <li>Every topic has <strong>lessons</strong>, <strong>exercises</strong> (guided, practice, real-world, boss), a <strong>review</strong> for when you've forgotten, and a <strong>cheatsheet</strong>.</li>
+      <li>Hard coding exercises are real files in each topic's <code>practice/</code> folder. Run them in your terminal.</li>
+      <li>Everything here works without Claude.</li>
+    </ol>
+  </details>
+</main>
+
+<script>
+(function () {
+  const LIB = window.LIBRARY || { subjects: [] };
+  const read = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } };
+  const write = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+  const visits = read("learn:visits", {});
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  const daysSince = (iso) => (iso ? Math.floor((Date.now() - new Date(iso + "T00:00:00").getTime()) / 86400000) : Infinity);
+  const rust = (d) => (d < 7 ? "fresh" : d < 21 ? "fading" : "rusty");
+  function ago(d) {
+    if (d === Infinity) return "not opened yet";
+    if (d <= 0) return "today";
+    if (d === 1) return "yesterday";
+    if (d < 14) return d + " days ago";
+    if (d < 60) return Math.round(d / 7) + " weeks ago";
+    return Math.round(d / 30) + " months ago";
+  }
+
+  // Flatten: one entry per topic.
+  const topics = [];
+  LIB.subjects.forEach((s) => (s.topics || []).forEach((t) => {
+    const a = t.lastStudied || "", b = visits[s.id + "/" + t.id] || "";
+    const d = daysSince(a > b ? a : b);
+    const lessons = t.lessons || [];
+    topics.push({
+      s, t, d, lessons, base: s.id + "/" + t.id + "/",
+      hay: [t.title, t.summary, (t.tags || []).join(" "), lessons.map((l) => l.title + " " + (l.tags || []).join(" ")).join(" ")].join(" ").toLowerCase(),
+    });
+  }));
+  const subjects = LIB.subjects.filter((s) => (s.topics || []).length);
+
+  const lib = document.getElementById("library");
+  if (!topics.length) {
+    lib.innerHTML = '<p class="empty">Nothing here yet. Run <code>/learn &lt;topic&gt;</code> in Claude Code to make your first lesson.</p>';
+    document.getElementById("how").open = true;
+    document.querySelector(".finder").hidden = true;
+    document.querySelector(".legend").hidden = true;
+    return;
+  }
+
+  const lessonCount = topics.reduce((n, x) => n + x.lessons.length, 0);
+  document.getElementById("stats").textContent =
+    subjects.length + (subjects.length === 1 ? " subject, " : " subjects, ") +
+    topics.length + (topics.length === 1 ? " topic, " : " topics, ") +
+    lessonCount + (lessonCount === 1 ? " lesson." : " lessons.");
+
+  // Continue card: latest lesson of the most recent topic.
+  const recent = topics.slice().sort((x, y) => x.d - y.d)[0];
+  if (recent.lessons.length) {
+    const last = recent.lessons[recent.lessons.length - 1];
+    document.getElementById("continue").innerHTML =
+      '<a class="continue" href="' + recent.base + last.file + '">' +
+      '<span class="c-where">Continue with ' + esc(recent.t.title) + ", lesson " + last.n + "</span>" +
+      '<span class="c-title">' + esc(last.title) + '</span><span class="c-go">Open lesson</span></a>';
+  }
+
+  // State: subject tab, sort, filter text, open rows. Tab, sort and open rows are remembered.
+  const state = { subject: read("learn:home:subject", "all"), sort: read("learn:home:sort", "recent"), q: "" };
+  const opened = new Set(read("learn:home:open", []));
+  if (state.subject !== "all" && !subjects.some((s) => s.id === state.subject)) state.subject = "all";
+
+  // Subject tabs
+  const tabs = document.getElementById("tabs");
+  const tabDefs = [{ id: "all", title: "All", n: topics.length }].concat(subjects.map((s) => ({ id: s.id, title: s.title, n: s.topics.length })));
+  tabs.innerHTML = tabDefs.map((d) =>
+    '<button type="button" role="tab" class="tab" data-id="' + esc(d.id) + '">' + esc(d.title) + " <span>" + d.n + "</span></button>").join("");
+  tabs.addEventListener("click", (e) => {
+    const b = e.target.closest(".tab");
+    if (!b) return;
+    state.subject = b.dataset.id;
+    write("learn:home:subject", state.subject);
+    render();
+  });
+
+  const sortSel = document.getElementById("sort");
+  sortSel.value = state.sort;
+  sortSel.addEventListener("change", () => { state.sort = sortSel.value; write("learn:home:sort", state.sort); render(); });
+
+  const sorters = {
+    recent: (x, y) => x.d - y.d || x.t.title.localeCompare(y.t.title),
+    az: (x, y) => x.t.title.localeCompare(y.t.title),
+    rusty: (x, y) => (y.d === Infinity ? -1 : y.d) - (x.d === Infinity ? -1 : x.d) || x.t.title.localeCompare(y.t.title),
+  };
+
+  function row(x, words) {
+    const key = x.s.id + "/" + x.t.id;
+    const hitLesson = (l) => words.length && words.every((w) => (l.title + " " + (l.tags || []).join(" ")).toLowerCase().includes(w));
+    const open = words.length ? true : opened.has(key);
+    return '<details class="trow" data-key="' + esc(key) + '"' + (open ? " open" : "") + ">" +
+      "<summary>" +
+        '<i class="rust ' + rust(x.d) + '" title="' + rust(x.d) + '"></i>' +
+        '<span class="t-title">' + esc(x.t.title) + "</span>" +
+        (state.subject === "all" ? '<span class="t-subject">' + esc(x.s.title) + "</span>" : "") +
+        '<span class="t-meta">' + x.lessons.length + (x.lessons.length === 1 ? " lesson" : " lessons") + " · " + ago(x.d) + "</span>" +
+      "</summary>" +
+      '<div class="t-body">' +
+        (x.t.summary ? '<p class="t-summary">' + esc(x.t.summary) + "</p>" : "") +
+        (x.lessons.length ? '<ol class="t-lessons">' + x.lessons.map((l) =>
+          '<li' + (hitLesson(l) ? ' class="hit"' : "") + '><a href="' + x.base + l.file + '"><span class="n">' + l.n + "</span>" + esc(l.title) + "</a></li>").join("") + "</ol>" : "") +
+        '<div class="t-links">' +
+          '<a href="' + x.base + 'exercises.html">Exercises</a>' +
+          '<a href="' + x.base + 'comeback.html"' + (rust(x.d) === "rusty" ? ' class="urge"' : "") + ">Review</a>" +
+          '<a href="' + x.base + 'cheatsheet.html">Cheatsheet</a>' +
+        "</div>" +
+      "</div></details>";
+  }
+
+  function render() {
+    $$tabs();
+    const words = state.q.toLowerCase().split(/\s+/).filter(Boolean);
+    let list = topics.filter((x) => state.subject === "all" || x.s.id === state.subject);
+    if (words.length) list = list.filter((x) => words.every((w) => x.hay.includes(w)));
+    list.sort(sorters[state.sort]);
+
+    if (!list.length) {
+      lib.innerHTML = '<p class="empty">No topic matches “' + esc(state.q) + '”. Try fewer words, or the All tab.</p>';
+    } else if (state.subject === "all" && state.sort === "az" && !words.length && subjects.length > 1) {
+      // A to Z on the All tab: group by subject.
+      lib.innerHTML = subjects.slice().sort((a, b) => a.title.localeCompare(b.title)).map((s) => {
+        const rows = list.filter((x) => x.s.id === s.id);
+        return rows.length ? '<h2 class="group">' + esc(s.title) + "</h2>" + rows.map((x) => row(x, words)).join("") : "";
+      }).join("");
+      lib.querySelectorAll(".t-subject").forEach((n) => n.remove());
+    } else {
+      lib.innerHTML = list.map((x) => row(x, words)).join("");
+    }
+
+    // Key point hits (search only)
+    const kp = document.getElementById("keypoint-hits");
+    if (words.length && window.Learn) {
+      const hits = window.Learn.search(state.q).filter((h) => / key point$/.test(h.where)).slice(0, 8);
+      kp.innerHTML = hits.length ? '<h3>Key points</h3><ul class="results">' + hits.map((h) =>
+        '<li><a href="' + h.href + '">' + esc(h.title) + "</a><small>" + esc(h.where) + "</small></li>").join("") + "</ul>" : "";
+    } else kp.innerHTML = "";
+  }
+  function $$tabs() {
+    tabs.querySelectorAll(".tab").forEach((b) => {
+      const on = b.dataset.id === state.subject;
+      b.classList.toggle("on", on);
+      b.setAttribute("aria-selected", on);
+    });
+  }
+
+  // Remember which rows are open.
+  lib.addEventListener("toggle", (e) => {
+    const d = e.target;
+    if (!d.classList || !d.classList.contains("trow") || state.q) return;
+    d.open ? opened.add(d.dataset.key) : opened.delete(d.dataset.key);
+    write("learn:home:open", Array.from(opened));
+  }, true);
+
+  const box = document.getElementById("search");
+  box.addEventListener("input", () => { state.q = box.value.trim(); render(); });
+  document.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") { e.preventDefault(); box.focus(); box.select(); }
+    if (e.key === "Escape" && document.activeElement === box) { box.value = ""; state.q = ""; render(); }
+  });
+  const q = new URLSearchParams(location.search).get("q");
+  if (q) { box.value = q; state.q = q; }
+
+  render();
+  window.addEventListener("load", () => { if (state.q) render(); });
+})();
+</script>
+</body>
+</html>

@@ -36,7 +36,7 @@
   // Library root, relative to this page: "../../" for topic pages, "" for the home page.
   const SCRIPT = document.currentScript;
   const ROOT = SCRIPT ? (SCRIPT.getAttribute("src") || "").replace(/assets\/learn\.js.*$/, "") : "";
-  const FILE = decodeURIComponent(location.pathname.split("/").pop() || "index.html");
+  const FILE = decodeURIComponent(location.pathname.split("/").pop() || "main.html");
   const IS_LESSON = /-lesson-/.test(FILE) || FILE === "comeback.html";
 
   function loadLibrary() {
@@ -127,7 +127,7 @@
     shell.append(side, main);
 
     // Brand + search
-    const brand = el("a", { class: "sb-brand", href: ROOT + "index.html", text: "Library" });
+    const brand = el("a", { class: "sb-brand", href: ROOT + "main.html", text: "Library" });
     const input = el("input", { type: "search", placeholder: "Search everything", "aria-label": "Search the library", autocomplete: "off" });
     const results = el("ul", { class: "sb-results", hidden: "" });
     const searchBox = el("div", { class: "sb-search" }, input, el("kbd", { text: "Ctrl K" }), results);
@@ -619,9 +619,16 @@
   // Public API for page-specific scripts.
   window.Learn = { store, el, answerMatches, markSolved, drawPlot, search, root: ROOT };
 
+  // Pages made before main.html existed link to index.html: point them at main.html.
+  function fixHomeLinks() {
+    $$('a[href="' + ROOT + 'index.html"]').forEach((a) => a.setAttribute("href", ROOT + "main.html"));
+  }
+
   function boot() {
+    fixHomeLinks();
     const chapters = initChapters();
-    buildShell(chapters);
+    if (document.body.classList.contains("home")) document.body.append(themeButton());
+    else buildShell(chapters);
     recordVisit();
     initLibs();
     initQuizzes();

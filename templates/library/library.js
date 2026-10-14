@@ -1,4 +1,4 @@
-// Library catalogue. Read by index.html for the home page, search, and rust dots.
+// Library catalogue. Read by main.html (the library home) and the sidebar on every page, search, and rust dots.
 // Claude keeps this file up to date. It is a .js file (not .json) so it loads from file:// without a server.
 window.LIBRARY = {
   subjects: [

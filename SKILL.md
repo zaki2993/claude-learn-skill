@@ -28,18 +28,14 @@ The library is any folder containing `learn.json`.
 
 1. Look for `learn.json` in the current directory, then its parents.
 2. **Found:** that folder is the library root. Read `learn.json` (settings + `notes` = the user's teaching preferences).
-   **Upgrade check:** compare the library's `assets/style.css`, `assets/learn.js` and `index.html` with this skill's [templates/library/](./templates/library/) (`cmp`). If they differ, copy the skill's versions over silently. These files are owned by the skill, never edited per library, so this is how old libraries get design fixes. Never overwrite `library.js` or `learn.json`.
+   **Upgrade check:** compare the library's `assets/style.css`, `assets/learn.js` and `main.html` with this skill's [templates/library/](./templates/library/) (`cmp`). If they differ or are missing, copy the skill's versions over silently. These files are owned by the skill, never edited per library, so this is how old libraries get design fixes. Never overwrite `library.js` or `learn.json`.
+   Old libraries have an `index.html` home instead of `main.html`: copy `main.html` in, delete `index.html`, and replace `../../index.html` with `../../main.html` in every topic page.
 3. **Not found:** ask once: *"No library here. Create one in `<cwd>`?"* On yes:
-   - Copy everything in [templates/library/](./templates/library/) into it (`index.html`, `library.js`, `learn.json`, `assets/`).
-   - Open `index.html` in the browser (see §7).
-   - Save the library's absolute path to `~/.config/learn/library` (one line) so the `learn` launcher finds it.
+   - Copy everything in [templates/library/](./templates/library/) into it (`main.html`, `library.js`, `learn.json`, `assets/`).
+   - Open `main.html` in the browser (see §7).
    - Show the user the **how this works** card from §8, then continue with their request.
 
-**Launcher (the one way in):** [bin/learn](./bin/learn) opens the library home page from anywhere: `learn` opens it, `learn jwt` opens it with a search. If `command -v learn` finds nothing, offer once to install it:
-- `ln -sf <this skill>/bin/learn ~/.local/bin/learn` (any OS with a `~/.local/bin` on PATH)
-- Linux desktops: also a `~/.local/share/applications/learning-library.desktop` entry (`Name=Learning Library`, `Exec=<home>/.local/bin/learn`) so it shows in the app launcher.
-Also keep `~/.config/learn/library` pointing at the library in use (update it if the user works in a different library).
-When telling the user where something is, say "run `learn`" or "open it from the sidebar", not a deep file path.
+**`main.html` is the one way in.** It sits at the library root and lists every subject, topic and lesson (subject tabs, filter, sort, expandable topic rows), so it stays clean with hundreds of lessons. Every page links back to it. When telling the user where something is, say "open `main.html`" or "use the sidebar", not a deep file path. Remind them once to bookmark it.
 
 Never create a library without asking. Never copy `templates/topic/` files to the library root.
 
@@ -75,7 +71,7 @@ Read `library.js` and the `progress.md` of recently studied topics. Reply in ≤
 - the most recent topic + its next step (from `progress.md`)
 - *"What do you want? e.g. `/learn <topic>`"*
 
-Open `index.html`.
+Open `main.html`.
 
 ## 4. Make a lesson
 
@@ -192,7 +188,7 @@ After making something, reply in this shape (≤ 10 lines):
 📚 How /learn works
 1. /learn <anything>: a topic, "more problems", "I forgot X", a question
 2. Each topic gets: 📖 lessons · ✍️ exercises · 🔁 comeback · 📌 cheatsheet
-3. Type `learn` in any terminal (or find "Learning Library" in your app launcher) to open everything. Works without me.
+3. Open main.html (bookmark it): every lesson is one click from there. Works without me.
 4. Hard coding exercises live in practice/ → run them in your terminal
 ```
 

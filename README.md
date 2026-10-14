@@ -19,14 +19,6 @@ Built for ADHD brains, and nice for everyone else:
 git clone https://github.com/zaki2993/claude-learn-skill.git ~/.claude/skills/learn
 ```
 
-Optional, a launcher so you can open your library from anywhere:
-
-```bash
-ln -s ~/.claude/skills/learn/bin/learn ~/.local/bin/learn
-learn            # opens the library home page
-learn jwt        # opens it with a search
-```
-
 ## Use
 
 ```bash
@@ -43,13 +35,14 @@ Then, in plain words:
 /learn why does the minus sign flip the inequality?
 ```
 
-The first run asks to set up a library in the current folder. Open `index.html` anytime.
+The first run asks to set up a library in the current folder. Open **`main.html`** (and bookmark it): every subject, topic and lesson is one click from there.
 
 ## Library layout
 
 ```
 learn/
-├── index.html  library.js  learn.json  assets/
+├── main.html   ← start here: every subject, topic and lesson
+├── library.js  learn.json  assets/
 └── <subject>/<topic>/
     ├── 01-lesson-*.html   exercises.html   comeback.html   cheatsheet.html
     ├── practice/          ← terminal exercises
