@@ -1,5 +1,7 @@
 # Building pages
 
+How to *explain* is in [TEACHING.md](./TEACHING.md). Read it first. This file is about markup.
+
 All pages live in `<library>/<subject>/<topic>/`, link `../../assets/style.css` and `../../assets/learn.js`, and set `<body data-topic="<subject>/<topic>">` (feeds the rust dots). Start every page from its template in [templates/topic/](./templates/topic/): keep the `<head>` exactly, then replace the `{{PLACEHOLDERS}}` and delete the HTML comments.
 
 The design is set by `style.css`: a study notebook, with cool paper, ink blue, and a yellow highlighter. `learn.js` builds the **sidebar** on every page automatically: search (Ctrl K), the library tree with "you are here", the numbered chapters of the page (from its `<h2>`s, filled in as you scroll), and progress. It also adds the big chapter numbers on lesson and comeback pages. So:
@@ -122,22 +124,26 @@ Each lesson gets a `<section>` in `exercises.html`. **Counts depend on depth: us
 
 Deep/Master: 🟡 and 🔴 must also hit the depth sections: an edge case, a "find the bug" on a common mistake, a debugging scenario ("here's the log/output, what's wrong?").
 
-The lesson page itself has its quick checks (🧩 + 🟢) and links to the full ladder.
+The lesson page itself has its quick checks (guided + practice) and links to the full ladder.
 
 Every solution shows the **reasoning**, not just the answer.
 
 ## Depth sections
 
-Deep and Master lessons add these `<h2>` sections between How it works and Examples (Master adds the last two). They show up in the sidebar automatically. Each one is **substantial**: several paragraphs, diagrams, code/math, not a single callout.
+Deep and Master lessons add these sections **after the cheat card**, behind the divider (the core lesson stays beginner-friendly). Master adds the last two. Each `<h2>` gets `class="deep"`, and the sidebar groups them under "Going deeper".
 
 ```html
-<h2 id="under-the-hood">Under the hood</h2>      <!-- the real mechanism, step by step: use .steps + an SVG diagram -->
-<h2 id="edge-cases">Edge cases</h2>               <!-- ≥ 4 × .example: input → surprising result → why -->
-<h2 id="mistakes">Common mistakes</h2>            <!-- ≥ 4 × callout.bad (wrong code/work + exact error) then callout.good (fix + why) -->
-<h2 id="debugging">Debugging it</h2>              <!-- how to make the invisible visible: logs, debugger, print the state, sanity checks -->
-<h2 id="connections">Connections</h2>             <!-- links to other lessons/topics + "learn next" -->
-<h2 id="design">Why it's designed this way</h2>   <!-- Master: the original problem, what came before, trade-offs -->
-<h2 id="expert">Expert level</h2>                 <!-- Master: performance, security, scale, interview questions (as .q with solutions) -->
+<div class="deeper"><p class="deeper-title">Going deeper</p><p>You have the basics. Now: what really happens inside, and where it breaks.</p></div>
+``` Each one is **substantial**: several paragraphs, diagrams, code/math, not a single callout.
+
+```html
+<h2 id="under-the-hood" class="deep">Under the hood</h2>      <!-- the real mechanism, step by step: use .steps + an SVG diagram -->
+<h2 id="edge-cases" class="deep">Edge cases</h2>               <!-- ≥ 4 × .example: input → surprising result → why -->
+<h2 id="mistakes" class="deep">Common mistakes</h2>            <!-- ≥ 4 × callout.bad (wrong code/work + exact error) then callout.good (fix + why) -->
+<h2 id="debugging" class="deep">Debugging it</h2>              <!-- how to make the invisible visible: logs, debugger, print the state, sanity checks -->
+<h2 id="connections" class="deep">Connections</h2>             <!-- links to other lessons/topics + "learn next" -->
+<h2 id="design" class="deep">Why it's designed this way</h2>   <!-- Master: the original problem, what came before, trade-offs -->
+<h2 id="expert" class="deep">Expert level</h2>                 <!-- Master: performance, security, scale, interview questions (as .q with solutions) -->
 ```
 
 Master lessons are parts of a series. The sidebar lists every part, so no extra navigator is needed. Start each part's subtitle with "Part N of M:".

@@ -142,7 +142,12 @@
     let chapterLinks = [];
     if (chapters.length > 1) {
       const list = el("ul", { class: "sb-chapters" });
+      let deepShown = false;
       chapterLinks = chapters.map((c) => {
+        if (!deepShown && c.h.classList.contains("deep")) {
+          deepShown = true;
+          list.append(el("li", { class: "sb-deeper", text: "Going deeper" }));
+        }
         const a = el("a", { href: "#" + c.h.id }, el("span", { text: c.num }), el("span", { text: c.title }));
         a.addEventListener("click", () => document.body.classList.remove("nav-open"));
         list.append(el("li", {}, a));

@@ -11,6 +11,7 @@ You are the user's personal teacher, and you build their **learning library**: a
 
 The user has ADHD. That changes everything below:
 - **Boredom is the enemy.** Every page opens with a real problem, not a definition.
+- **Intuition first, like 3Blue1Brown.** The reader sees and plays with the idea before it gets a name, and gets the picture before the math. **[TEACHING.md](./TEACHING.md) is the most important file in this skill**: follow it for every lesson.
 - **Understanding over memorizing.** Always show *why* something works. Never "just remember this."
 - **One direct way.** Teach the single most useful method. Mention an alternative only in a short callout, and only if it really helps.
 - **Lots of examples.** Concrete numbers and code, easy → hard.
@@ -88,7 +89,7 @@ Open `main.html`.
 ### 4b. Pick the ONE thing
 One lesson = one idea the user can *use* by the end. Pick it from `progress.md`'s next step, or the most useful next idea for the topic. If the request is big, split it into lessons and say so: *"This is 3 lessons. Starting with X."*
 
-**Master** is the exception: it is a **series of 3–5 lesson files** (`NN-lesson-...`), built in one go, that together cover the whole concept end-to-end. Plan the parts first (e.g. Spring Security: 1. the filter chain · 2. authentication internals · 3. authorization rules · 4. JWT/sessions · 5. debugging & testing) and tell the user the plan in one line before building.
+**Master** is the exception: it is a **series of 3–5 lesson files** (`NN-lesson-...`), built in one go, that together cover the whole concept end-to-end. Plan the parts first, from gentle to hard (e.g. Spring Security: 1. who checks a request before your code? · 2. how it knows who you are · 3. who's allowed where · 4. tokens instead of sessions · 5. finding and fixing security bugs) and tell the user the plan in one line before building. **Part 1 is the gentlest page of the series**: its core must work for someone who has never heard of the topic.
 
 ### 4c. Build the files
 In `<library>/<subject>/<topic>/`:
@@ -107,9 +108,10 @@ Then update `<library>/library.js`: add or update the subject, topic, lesson ent
 
 Also link the previous lesson's **Next** card to the new lesson.
 
-**Follow [PAGES.md](./PAGES.md) for every page**: components, exercise ladder, quality bar. Read it before writing the first page of a session.
+**Before writing a lesson, read [TEACHING.md](./TEACHING.md)** (how to explain: the lesson arc, the jargon budget, the self-review). **Then follow [PAGES.md](./PAGES.md)** for components and markup. Read both before the first page of a session.
 
 ### 4d. Quality check before you finish
+- [ ] **The TEACHING.md self-review passes** (≤ 3 core terms, no formulas in chapters 1–2, something to do on the first screen, curiosity chain, plain title). If not, rewrite.
 - [ ] Opens with a real problem from the field, solved at the end
 - [ ] Has a visual (interactive if the idea involves change, e.g. graphs, loops, state)
 - [ ] Every step says **why**
@@ -136,7 +138,7 @@ Per lesson file (Master: per part, so a 4-part Master has 4× the lesson numbers
 | Terminal tasks in `practice/` (coding) | 0 | 1 | 2 | 2 per part + 1 capstone |
 | Depth sections (below) | none | ⚠️ trap callout | all 5 | all 7 |
 
-**Depth sections** (they go between ⚙️ How it works and 🧪 Examples; markup in [PAGES.md](./PAGES.md#depth-sections)):
+**Depth sections** go **after the core lesson** (after the cheat card), behind the "Going deeper" divider. The core stays beginner-friendly at every depth. Markup in [PAGES.md](./PAGES.md#depth-sections):
 
 | Section | What it covers | Deep | Master |
 |---|---|---|---|
@@ -150,7 +152,7 @@ Per lesson file (Master: per part, so a 4-part Master has 4× the lesson numbers
 
 **Master extras:** a final **capstone** (`practice/capstone-<name>/` for coding, or a multi-step real problem on its own page for math) that uses every part. Plus a `comeback.html` that covers all parts.
 
-Depth means **going further down, not saying more words.** A Deep lesson on the Spring filter chain should show the actual filters in order, what each one does with the request, what happens when one throws, and how to print the chain. Not 3 more paragraphs of the Normal content.
+Depth means **going further down, not starting harder.** The core of a Deep or Master lesson is as gentle as a Normal one. Depth lives in Going deeper, plus more examples and harder exercises. A Deep lesson on the Spring filter chain should show the actual filters in order, what each one does with the request, what happens when one throws, and how to print the chain. Not 3 more paragraphs of the Normal content.
 
 ## 5. More exercises / comeback
 

@@ -3,7 +3,8 @@
 Turns Claude into a personal teacher that builds you a **learning library**: beautiful HTML lessons, self-checking exercises, and "comeback" pages for when you've forgotten everything. All of it works in your browser **without Claude**.
 
 Built for ADHD brains, and nice for everyone else:
-- 🎯 Every lesson starts from a **real problem** and ends by solving it
+- 🎯 Every lesson starts from a **real problem** you can play with, and ends by solving it
+- 🧠 **Intuition first** (3Blue1Brown style): see the idea, then name it, then the math and code
 - 🖼️ **Visual**: diagrams, sliders, live graphs, one-step-at-a-time explanations
 - ⚙️ Teaches **why** it works, one direct method, lots of worked examples
 - ✍️ Exercise ladder: 🧩 guided discovery → 🟢 practice → 🟡 real-world → 🔴 boss, checked instantly
@@ -53,6 +54,7 @@ learn/
 ## Files in this skill
 
 - `SKILL.md`: how Claude runs a session
+- `TEACHING.md`: how to explain (intuition first, jargon budget, lesson arc, self-review)
 - `PAGES.md`: page components, exercise ladder, quality rules
 - `templates/library/`: copied once into a new library (shared CSS/JS engine, home page)
 - `templates/topic/`: page skeletons Claude fills in for each topic
