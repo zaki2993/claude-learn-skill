@@ -19,6 +19,14 @@ Built for ADHD brains, and nice for everyone else:
 git clone https://github.com/zaki2993/claude-learn-skill.git ~/.claude/skills/learn
 ```
 
+Optional, a launcher so you can open your library from anywhere:
+
+```bash
+ln -s ~/.claude/skills/learn/bin/learn ~/.local/bin/learn
+learn            # opens the library home page
+learn jwt        # opens it with a search
+```
+
 ## Use
 
 ```bash

@@ -455,17 +455,22 @@ svg.plot .tick { fill: var(--muted); font-size: 11px; font-family: var(--mono); 
 .continue .c-where { grid-column: 1 / -1; color: var(--muted); font-size: .88rem; }
 .continue .c-title { font-family: var(--display); font-weight: 800; font-size: 1.6rem; line-height: 1.2; letter-spacing: -0.015em; }
 .continue .c-go { font-weight: 700; color: var(--accent); white-space: nowrap; }
-.fading { margin: 36px 0 0; }
-.fading ul { list-style: none; padding: 0; margin: 0; }
-.fading li { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); margin: 0; }
-.fading li a:first-of-type { font-weight: 700; }
-.fading li .when { color: var(--muted); font-size: .85rem; margin-left: auto; white-space: nowrap; }
+.fading-list { margin: 36px 0 0; }
+.fading-list ul { list-style: none; padding: 0; margin: 0; }
+.fading-list li { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); margin: 0; }
+.fading-list li a:first-of-type { font-weight: 700; }
+.fading-list li .when { color: var(--muted); font-size: .85rem; margin-left: auto; white-space: nowrap; }
 .search { width: 100%; font: inherit; padding: 12px 16px; margin: 20px 0 8px; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius); }
 .subject h2 { margin-top: 64px; }
 .topics { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; }
 .topic { border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; background: var(--surface); }
 .topic h3 { margin: 0; display: flex; align-items: center; gap: 8px; font-size: 1.08rem; }
 .topic .when { color: var(--muted); font-size: .82rem; }
+.topic .lessons { list-style: none; margin: 4px 0 0; padding: 0; counter-reset: ls; font-size: .9rem; }
+.topic .lessons li { counter-increment: ls; margin: 0; display: grid; grid-template-columns: 22px 1fr; gap: 4px; line-height: 1.4; padding: 3px 0; }
+.topic .lessons li::before { content: counter(ls); font-family: var(--display); font-weight: 700; color: var(--accent); font-size: .85rem; }
+.topic .lessons a { color: var(--text); text-decoration: none; }
+.topic .lessons a:hover { color: var(--accent); text-decoration: underline; }
 .topic .links { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: auto; font-size: .86rem; }
 .topic .links a { text-decoration: none; }
 .topic .links a:hover { text-decoration: underline; }

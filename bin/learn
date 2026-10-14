@@ -1,0 +1,31 @@
+#!/bin/sh
+# Open your /learn library's home page in the browser.
+#   learn            open the home page (every subject, topic and lesson is one click away)
+#   learn <words>    open the home page with a search for <words>
+#   learn --where    print the library folder
+# The library folder comes from $LEARN_LIBRARY, else ~/.config/learn/library (written by /learn), else ~/learn.
+
+conf="${XDG_CONFIG_HOME:-$HOME/.config}/learn/library"
+lib="${LEARN_LIBRARY:-}"
+[ -z "$lib" ] && [ -f "$conf" ] && lib="$(head -n 1 "$conf")"
+[ -z "$lib" ] && lib="$HOME/learn"
+
+if [ ! -f "$lib/index.html" ]; then
+  echo "No library found at $lib" >&2
+  echo "Run /learn inside Claude Code to create one, or set LEARN_LIBRARY=/path/to/library" >&2
+  exit 1
+fi
+
+if [ "$1" = "--where" ]; then echo "$lib"; exit 0; fi
+
+url="file://$lib/index.html"
+if [ $# -gt 0 ]; then
+  q="$(printf '%s' "$*" | sed 's/%/%25/g; s/ /%20/g; s/#/%23/g; s/&/%26/g; s/?/%3F/g')"
+  url="$url?q=$q"
+fi
+
+case "$(uname -s)" in
+  Darwin) open "$url" ;;
+  MINGW*|MSYS*|CYGWIN*) start "" "$url" ;;
+  *) (xdg-open "$url" >/dev/null 2>&1 &) ;;
+esac

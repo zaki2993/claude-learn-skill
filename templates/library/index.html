@@ -85,7 +85,7 @@
   // Fading: topics not seen for a week or more, oldest first.
   const fading = all.filter((x) => x.d >= 7 && x.d !== Infinity).sort((x, y) => y.d - x.d).slice(0, 5);
   if (fading.length) {
-    document.getElementById("fading").innerHTML = '<section class="fading"><h3>Fading, worth a 5-minute review</h3><ul>' +
+    document.getElementById("fading").innerHTML = '<section class="fading-list"><h3>Fading, worth a 5-minute review</h3><ul>' +
       fading.map((x) => '<li><i class="rust ' + rust(x.d) + '"></i><a href="' + base(x.s, x.t) + 'comeback.html">' + esc(x.t.title) +
         '</a><span class="when">' + ago(x.d) + "</span></li>").join("") + "</ul></section>";
   }
@@ -98,7 +98,8 @@
       return '<div class="topic"><h3><i class="rust ' + rust(d) + '" title="' + rust(d) + '"></i>' + esc(t.title) + "</h3>" +
         '<div class="when">' + ls.length + " lesson" + (ls.length === 1 ? "" : "s") + " · studied " + ago(d) + "</div>" +
         (t.summary ? "<div>" + esc(t.summary) + "</div>" : "") +
-        '<div class="links">' + (ls.length ? '<a href="' + b + ls[0].file + '">Lessons</a>' : "") +
+        (ls.length ? '<ol class="lessons">' + ls.map((l) => '<li><a href="' + b + l.file + '">' + esc(l.title) + "</a></li>").join("") + "</ol>" : "") +
+        '<div class="links">' +
         '<a href="' + b + 'exercises.html">Exercises</a><a href="' + b + 'comeback.html">Review</a><a href="' + b + 'cheatsheet.html">Cheatsheet</a></div></div>';
     }).join("") + "</div></section>"
   ).join("") +
@@ -106,13 +107,21 @@
 
   // Search (uses the shared index from learn.js once it has loaded).
   const results = document.getElementById("results");
-  document.getElementById("search").addEventListener("input", (e) => {
-    const hits = window.Learn ? window.Learn.search(e.target.value) : [];
-    results.hidden = !e.target.value.trim();
+  const box = document.getElementById("search");
+  const runSearch = () => {
+    const hits = window.Learn ? window.Learn.search(box.value) : [];
+    results.hidden = !box.value.trim();
     results.innerHTML = hits.length
       ? hits.map((h) => '<li><a href="' + h.href + '">' + esc(h.title) + "</a><small>" + esc(h.where) + "</small></li>").join("")
       : '<li class="empty">No match. Try fewer words.</li>';
-  });
+  };
+  box.addEventListener("input", runSearch);
+  // "learn <words>" in the terminal opens index.html?q=<words>
+  const q = new URLSearchParams(location.search).get("q");
+  if (q) {
+    box.value = q;
+    window.addEventListener("load", () => { runSearch(); box.focus(); });
+  }
 })();
 </script>
 </body>
