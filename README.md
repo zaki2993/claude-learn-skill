@@ -83,6 +83,7 @@ learn/
 | `SKILL.md` | How Claude runs a session |
 | `TEACHING.md` | How to explain: the lesson structure, the limit on new terms, the self-review |
 | `PAGES.md` | Page components, exercise levels, quality rules |
+| `scripts/check.py` | Checks a finished lesson: minimums, ids, links, runner solutions, practice tests. Claude runs it after every lesson |
 | `templates/library/` | Copied into a new library: the home page and the shared style and engine |
 | `templates/topic/` | Page templates Claude fills in for each topic |
 

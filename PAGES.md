@@ -148,7 +148,7 @@ Plain paragraphs between components are good: they give the eye a rest. Aim for 
 - `call` is an expression in the runner's language; `expect` is JSON (numbers get a tolerance; arrays/objects compared deeply).
 - `console.log` / `print` output is shown too.
 - Python loads Pyodide from the CDN on first run (needs internet). JS works offline.
-- **Verify:** before finishing, run the solution against the tests locally (`node -e` / `python3 -c`).
+- **Verify:** `scripts/check.py` runs every JS/Python runner solution against its tests (SKILL.md §4d).
 - Other languages (C, Java, PHP, Rust, Go, SQL, frameworks...): no runner. Use a 📟 terminal task (below) + a `Done when:` checklist.
 
 ### Interactive visuals
@@ -216,14 +216,20 @@ For coding topics, at least one 👾 boss per lesson goes in `practice/NN-<name>
 practice/02-cart-total/
 ├── README.md       ← the task, the "done when" checklist, the run command
 ├── starter.js      ← what the user edits (TODOs, signatures)
-├── test.js         ← runs the checks, prints 🍀/🌀 per test + a final 🪩
+├── test.js         ← tests starter.js, or the file given: `node test.js solution.js`
 └── solution.js     ← reference solution (README says: try first!)
 ```
 
 - **No dependencies** unless the topic is the framework itself. Use what the language ships with: `node:assert` for JS, plain `assert` + `python3 test.py` for Python, a `main` + expected output for C/Java/Go.
 - Framework topics (React, Laravel...): a tiny real project is fine. README gives the exact setup commands (`npm create vite@latest ...`), using the current versions you looked up.
 - The test file prints friendly output: `🍀 <test name>` or `🌀 <test name>: expected X, got Y` per test, then `🪩 All N tests pass!` at the end. Never a raw stack trace as the only feedback.
-- **Verify** the solution passes the tests and the starter fails them before finishing.
+- **The test file takes the file to test as its argument**, default the starter: `node test.js` tests `starter.js`, `node test.js solution.js` tests the solution (Python: `python3 test.py [solution.py]`). It **exits with code 1** if any test fails. Rust: put `#[test]`s in `starter.rs` and `solution.rs` instead (run with `rustc --test`).
+
+  ```js
+  const path = require("node:path");
+  const { cartTotal } = require(path.resolve(__dirname, process.argv[2] || "starter.js"));
+  ```
+- **Verify:** `scripts/check.py` checks the folder has all four files, the test fails on the starter and passes on the solution. Other languages (C, Java, Go...) get a warning: run those by hand.
 - Link it from `exercises.html` with a `pre.cmd` box showing `cd` + run command (path relative to the library root).
 
 ## Comeback page rules

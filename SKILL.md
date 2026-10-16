@@ -119,18 +119,25 @@ Also link the previous lesson's **Next** card to the new lesson.
 **Before writing a lesson, read [TEACHING.md](./TEACHING.md)** (how to explain: the lesson arc, the jargon budget, the self-review). **Then follow [PAGES.md](./PAGES.md)** for components and markup. Read both before the first page of a session.
 
 ### 4d. Quality check before you finish
+
+**Run the check script** at the end of every lesson build, and fix everything it reports:
+
+```
+python3 <this skill's folder>/scripts/check.py <library-root> <subject>/<topic> --depth <quick|normal|deep|master> --lesson <N>
+```
+
+It checks the §4e minimums (examples, quick checks, visuals, exercises per tier, practice folders, depth sections), leftover `{{placeholders}}` and template comments, `data-id`s, links, `library.js`, runner solutions against their tests, and practice folders (test fails on the starter, passes on the solution). Below a minimum → keep writing, don't finish short. Run it again until it ends with "All checks pass." A WARN means it couldn't check something (missing toolchain): check that by hand.
+
+Then the things a script can't judge:
 - [ ] **The TEACHING.md self-review passes** (≤ 3 core terms, no formulas in chapters 1–2, something to do on the first screen, curiosity chain, plain title). If not, rewrite.
 - [ ] Opens with a real problem from the field, solved at the end
 - [ ] Has a visual (interactive if the idea involves change, e.g. graphs, loops, state)
 - [ ] Every step says **why**
-- [ ] **Every minimum in §4e for the chosen depth is met.** Count them (`grep -c 'class="example"'`, `grep -c 'class="q"'`...). Below the minimum → keep writing. Don't finish short.
 - [ ] Worked examples go easy → hard
 - [ ] One method, no menu of alternatives (Deep/Master may compare with what it replaces, in its own section)
 - [ ] Exercises go 🔦 → 🥋 → 🛰️ → 👾, every one has hint and/or full solution
-- [ ] All `data-answer` values verified (solve every exercise yourself; for runners, run the solution against the tests with `node`/`python3`)
-- [ ] Cheat card ≤ 6 bullets, also copied into cheatsheet.html
-- [ ] All links between pages work (relative paths)
-- [ ] `library.js` updated
+- [ ] All `data-answer` values verified: solve every exercise yourself (the script runs runner solutions, not typed answers)
+- [ ] Cheat card says the same thing as the lesson, cheatsheet, comeback key points and `library.js` keypoints
 
 ### 4e. Depth levels: hard minimums
 
