@@ -30,9 +30,14 @@ The library is any folder containing `learn.json`.
 
 1. Look for `learn.json` in the current directory, then its parents.
 2. **Found:** that folder is the library root. Read `learn.json` (settings + `notes` = the user's teaching preferences).
-   **Upgrade check:** compare the library's `assets/style.css`, `assets/learn.js`, `assets/vendor/` and `main.html` with this skill's [templates/library/](./templates/library/) (`cmp`, `diff -r`). If they differ or are missing, copy the skill's versions over silently. These files are owned by the skill, never edited per library, so this is how old libraries get design fixes. Never overwrite `library.js` or `learn.json`. If they have no library id yet, add one (same steps as for a new library, below): old saved answers move over by themselves on first load.
-   Old libraries have an `index.html` home instead of `main.html`: copy `main.html` in, delete `index.html`, and replace `../../index.html` with `../../main.html` in every topic page.
-   Old topic pages load KaTeX and highlight.js from `cdnjs.cloudflare.com`: point those four tags at `../../assets/vendor/...` as in the templates.
+   **Upgrade check:** the shared files (`assets/style.css`, `assets/learn.js`, `assets/vendor/`, `main.html`) are owned by the skill, never edited per library. They carry a `templateVersion`:
+   - **Skill's version:** `templateVersion` in this skill's [templates/library/learn.json](./templates/library/learn.json) (the same number is in the first line of `templates/library/assets/learn.js`).
+   - **Library's version:** `templateVersion` in the library's `learn.json`. Missing → the number in the first line of its `assets/learn.js`. Neither → 1.
+   - **Library lower:** back up the files you're about to replace into `<library>/.learn-backups/<yyyymmdd-hhmmss>/` (same relative paths), copy the skill's shared files over, run every step in [MIGRATIONS.md](./MIGRATIONS.md) for the versions in between, then set `templateVersion` in the library's `learn.json` to the skill's. Tell the user in one line.
+   - **Same:** do nothing. If a shared file is missing, copy just that one.
+   - **Library higher:** never downgrade. Tell the user once: "Your library is newer than this skill. Update the skill (`git pull` in its folder)."
+
+   Never overwrite `library.js` or `learn.json` (MIGRATIONS.md edits them in place).
 3. **Not found:** ask once: *"No library here. Create one in `<cwd>`?"* On yes:
    - Copy everything in [templates/library/](./templates/library/) into it (`main.html`, `library.js`, `learn.json`, `assets/` with `assets/vendor/`).
    - Make a library id (`python3 -c "import uuid; print(uuid.uuid4())"`) and write it in place of `{{LIBRARY_ID}}` in both `learn.json` (`libraryId`) and `library.js` (`id`). Pages key saved answers by it (pages can't read JSON from `file://`, so `library.js` carries a copy). Never change it later.

@@ -1,4 +1,6 @@
-/* learn.js: shared engine for every page in a /learn library.
+/* learn.js templateVersion: 2 (same as templates/library/learn.json; SKILL.md §1 upgrade check)
+ *
+ * learn.js: shared engine for every page in a /learn library.
  * No build step and no server needed; works when opened straight from disk (file://).
  *
  * Features (all opt-in by markup, see the skill's PAGES.md):

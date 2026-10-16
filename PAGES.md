@@ -9,7 +9,7 @@ The design is set by `style.css`: a study notebook, with cool paper, ink blue, a
 - **Emoji: only the set below** (see [Emoji](#emoji)).
 - **No hand-written table of contents, chapter numbers, or progress bars.** They're automatic.
 - Each `<h2>` is a chapter: give it a short plain title ("How it works", "Under the hood") and an `id`.
-- **Don't add per-page CSS** unless a diagram truly needs it. If something reusable is missing, add it to `assets/style.css` / `assets/learn.js` in the library *and* in this skill's `templates/library/assets/`.
+- **Don't add per-page CSS** unless a diagram truly needs it. If something reusable is missing, add it to `assets/style.css` / `assets/learn.js` in the library *and* in this skill's `templates/library/assets/`. That changes this skill's git repo, so tell the user and commit it (bump `templateVersion` in `templates/library/learn.json` and the first line of `learn.js`, so other libraries pick it up).
 
 ## Emoji
 
