@@ -75,17 +75,16 @@
   function initChapters() {
     const main = document.querySelector("main");
     if (!main) return [];
-    // Old pages put emoji in front of headings, breadcrumbs and meta: drop them.
-    $$(".crumbs a, .crumbs, .pill, h1, h3, summary, .callout > strong:first-child", main).forEach((n) => {
+    // No emoji in titles, breadcrumbs or core chapters (PAGES.md#emoji): drop them there.
+    // Labels, summaries, callouts and "Going deeper" chapters (h2.deep) keep theirs.
+    const strip = (n) => {
       const first = n.firstChild;
       if (first && first.nodeType === 3) first.textContent = stripIcon(first.textContent);
-    });
+    };
+    $$(".crumbs a, .crumbs, h1", main).forEach(strip);
     if (document.body.classList.contains("home")) return [];
     const heads = $$("h2", main);
-    heads.forEach((h) => {
-      const first = h.firstChild;
-      if (first && first.nodeType === 3) first.textContent = stripIcon(first.textContent);
-    });
+    heads.filter((h) => !h.classList.contains("deep")).forEach(strip);
     return heads.map((h, i) => {
       if (!h.id) h.id = "ch-" + (i + 1);
       const num = String(i + 1).padStart(2, "0");
@@ -146,7 +145,7 @@
       chapterLinks = chapters.map((c) => {
         if (!deepShown && c.h.classList.contains("deep")) {
           deepShown = true;
-          list.append(el("li", { class: "sb-deeper", text: "Going deeper" }));
+          list.append(el("li", { class: "sb-deeper", text: "🤿 Going deeper" }));
         }
         const a = el("a", { href: "#" + c.h.id }, el("span", { text: c.num }), el("span", { text: c.title }));
         a.addEventListener("click", () => document.body.classList.remove("nav-open"));
@@ -233,11 +232,11 @@
           if (isHere && FILE === file) { a.classList.add("here"); a.setAttribute("aria-current", "page"); }
           pages.append(el("li", {}, a));
         };
-        (t.lessons || []).forEach((l) => link(l.file, l.n + ". " + l.title));
+        (t.lessons || []).forEach((l) => link(l.file, "📜 " + l.n + ". " + l.title));
         pages.append(el("li", { class: "sb-sep", "aria-hidden": "true" }));
-        link("exercises.html", "Exercises");
-        link("comeback.html", "Comeback review");
-        link("cheatsheet.html", "Cheatsheet");
+        link("exercises.html", "🎲 Exercises");
+        link("comeback.html", "🪃 Comeback review");
+        link("cheatsheet.html", "🧾 Cheatsheet");
         const d = el("details", { class: "sb-topic" }, el("summary", { text: t.title }), pages);
         if (isHere) d.open = true;
         topics.append(el("li", {}, d));
@@ -287,7 +286,7 @@
     if (!progressUI) return;
     const done = $$(".q, .runner").filter((n) => isSolved(n.dataset.id)).length;
     const pct = (100 * done / progressUI.total) + "%";
-    progressUI.label.innerHTML = "<b>" + done + " / " + progressUI.total + "</b> solved" + (done === progressUI.total ? ". All done!" : "");
+    progressUI.label.innerHTML = "<b>" + done + " / " + progressUI.total + "</b> solved" + (done === progressUI.total ? ". 🪩 All done!" : "");
     progressUI.fill.style.width = pct;
     sidebarParts.tbFill.style.width = pct;
   }
@@ -321,7 +320,7 @@
         q.classList.toggle("correct", ok);
         q.classList.toggle("wrong", !ok);
         feedback.className = "q-feedback " + (ok ? "ok" : "no");
-        feedback.textContent = ok ? "Correct." : "Not yet. Try again, or open a hint.";
+        feedback.textContent = ok ? "🍀 Correct." : "🌀 Not yet. Try again, or open a hint.";
         if (ok) markSolved(q.dataset.id);
       };
 
@@ -356,7 +355,7 @@
 
       const why = q.querySelector(".q-why");
       if (why) feedback.after(why);
-      if (isSolved(q.dataset.id)) { q.classList.add("correct"); feedback.className = "q-feedback ok"; feedback.textContent = "Solved before."; }
+      if (isSolved(q.dataset.id)) { q.classList.add("correct"); feedback.className = "q-feedback ok"; feedback.textContent = "🍀 Solved before."; }
     });
   }
 
@@ -448,7 +447,7 @@
         let res;
         try {
           if (lang === "py" || lang === "python") {
-            if (!pyodideReady) line("log", "⏳ Loading Python (first run takes a few seconds)…");
+            if (!pyodideReady) line("log", "📟 Loading Python (first run takes a few seconds)…");
             res = await runPython(area.value, tests);
             out.textContent = "";
           } else {
@@ -459,18 +458,18 @@
         }
         runBtn.disabled = false;
         res.logs.forEach((l) => line("log", l.replace(/\n$/, "")));
-        if (res.error) { line("fail", "💥 " + res.error); box.classList.remove("correct"); return; }
+        if (res.error) { line("fail", "🧨 " + res.error); box.classList.remove("correct"); return; }
         let passed = 0;
         tests.forEach((t, k) => {
           const r = res.results[k];
           const ok = r.ok && deepEqual(r.value, t.expect);
           if (ok) passed++;
-          line(ok ? "pass" : "fail", (ok ? "✅ " : "❌ ") + t.call + " → " +
+          line(ok ? "pass" : "fail", (ok ? "🍀 " : "🌀 ") + t.call + " → " +
             (r.ok ? show(r.value) : "error: " + r.error) + (ok ? "" : "   (expected " + show(t.expect) + ")"));
         });
         if (tests.length) {
           const all = passed === tests.length;
-          line(all ? "pass" : "fail", all ? "\n🎉 All " + passed + " tests pass!" : "\n" + passed + " / " + tests.length + " tests pass. Keep going.");
+          line(all ? "pass" : "fail", all ? "\n🪩 All " + passed + " tests pass!" : "\n" + passed + " / " + tests.length + " tests pass. Keep going.");
           box.classList.toggle("correct", all);
           if (all) markSolved(box.dataset.id);
         }

@@ -15,7 +15,8 @@ The user has ADHD. That changes everything below:
 - **Understanding over memorizing.** Always show *why* something works. Never "just remember this."
 - **One direct way.** Teach the single most useful method. Mention an alternative only in a short callout, and only if it really helps.
 - **Lots of examples.** Concrete numbers and code, easy → hard.
-- **Visible wins.** Progress bars, ✅, 🎉. A clear "you can now do X".
+- **Visible wins.** Progress bars, 🍀 on a right answer, 🪩 when everything is solved. A clear 🏅 "you can now do X".
+- **Emoji: only the set in [PAGES.md](./PAGES.md#emoji)**, in chat and on pages. Never the generic ones on its banned list.
 - **Forgetting is normal.** Coming back must feel like *dusting off*, never *starting over*.
 - **In chat:** short. Lead with what you made and the one next action. No walls of text.
 
@@ -58,18 +59,18 @@ Never create a library without asking. Never copy `templates/topic/` files to th
 
 **Depth: ALWAYS ask. Every single lesson.** New topic, next lesson, "continue", a redo: before building any lesson file, ask with the AskUserQuestion tool. Even if you asked earlier in this session, even if `progress.md` shows what they picked last time, even if the request seems obvious. The **only** exception: the user's message itself names a depth ("deep lesson on X", "quick one on Y"). Skipping this question is a bug. Offer **exactly these 4 options**, in this order:
 
-1. **⚡ Quick (~5 min)**: the core idea + a couple of examples
-2. **📘 Normal (~15 min)**: the idea, properly explained and practiced
-3. **🔬 Deep (~40 min)**: how it works under the hood, edge cases, traps
-4. **🧠 Master (2h+, multi-part)**: everything: internals, design reasons, debugging, a capstone project
+1. **🪁 Quick (~5 min)**: the core idea + a couple of examples
+2. **🧭 Normal (~15 min)**: the idea, properly explained and practiced
+3. **🤿 Deep (~40 min)**: how it works under the hood, edge cases, traps
+4. **🐉 Master (2h+, multi-part)**: everything: internals, design reasons, debugging, a capstone project
 
 Add "(Recommended)" to the option matching `learn.json` → `defaultLength`, and keep the order. Each level has **hard minimums** (§4e). Deep and Master are not "normal but longer". They go *down* into how and why it works.
 
 ## 3. Overview (`/learn` with nothing)
 
 Read `library.js` and the `progress.md` of recently studied topics. Reply in ≤ 8 lines:
-- 🔴 rusty topics (lastStudied 3+ weeks ago) → suggest their comeback page
-- the most recent topic + its next step (from `progress.md`)
+- 🦴 rusty topics (lastStudied 3+ weeks ago) → suggest their 🪃 comeback page
+- 🌱 the most recent topic + its 🛤️ next step (from `progress.md`)
 - *"What do you want? e.g. `/learn <topic>`"*
 
 Open `main.html`.
@@ -118,7 +119,7 @@ Also link the previous lesson's **Next** card to the new lesson.
 - [ ] **Every minimum in §4e for the chosen depth is met.** Count them (`grep -c 'class="example"'`, `grep -c 'class="q"'`...). Below the minimum → keep writing. Don't finish short.
 - [ ] Worked examples go easy → hard
 - [ ] One method, no menu of alternatives (Deep/Master may compare with what it replaces, in its own section)
-- [ ] Exercises go 🧩 → 🟢 → 🟡 → 🔴, every one has hint and/or full solution
+- [ ] Exercises go 🔦 → 🥋 → 🛰️ → 👾, every one has hint and/or full solution
 - [ ] All `data-answer` values verified (solve every exercise yourself; for runners, run the solution against the tests with `node`/`python3`)
 - [ ] Cheat card ≤ 6 bullets, also copied into cheatsheet.html
 - [ ] All links between pages work (relative paths)
@@ -128,35 +129,35 @@ Also link the previous lesson's **Next** card to the new lesson.
 
 Per lesson file (Master: per part, so a 4-part Master has 4× the lesson numbers).
 
-| | ⚡ Quick | 📘 Normal | 🔬 Deep | 🧠 Master (each part) |
+| | 🪁 Quick | 🧭 Normal | 🤿 Deep | 🐉 Master (each part) |
 |---|---|---|---|---|
 | Time | ~5 min | ~15 min | ~40 min | ~30–45 min × 3–5 parts |
 | Worked examples | 2 | 4 | 8 | 8 |
 | Visuals | 1 | 1–2 | 3+ (≥ 1 interactive) | 3+ (≥ 1 interactive) |
 | Quick checks in lesson | 2 | 3 | 5 | 5 |
-| Exercises in `exercises.html` | 5 (🧩1 🟢2 🟡1 🔴1) | 10 (🧩2 🟢3 🟡3 🔴2) | 18 (🧩3 🟢5 🟡6 🔴4) | 18 per part |
+| Exercises in `exercises.html` | 5 (🔦1 🥋2 🛰️1 👾1) | 10 (🔦2 🥋3 🛰️3 👾2) | 18 (🔦3 🥋5 🛰️6 👾4) | 18 per part |
 | Terminal tasks in `practice/` (coding) | 0 | 1 | 2 | 2 per part + 1 capstone |
-| Depth sections (below) | none | ⚠️ trap callout | all 5 | all 7 |
+| Depth sections (below) | none | 🪤 trap callout | all 5 | all 7 |
 
 **Depth sections** go **after the core lesson** (after the cheat card), behind the "Going deeper" divider. The core stays beginner-friendly at every depth. Markup in [PAGES.md](./PAGES.md#depth-sections):
 
 | Section | What it covers | Deep | Master |
 |---|---|---|---|
-| 🔍 **Under the hood** | What actually happens step by step inside: the real mechanism, data flow, the code/math the tool runs. Diagrams. | ✅ | ✅ |
-| 🧨 **Edge cases** | Inputs/situations where it behaves surprisingly, and why (≥ 4) | ✅ | ✅ |
-| ⚠️ **Common mistakes** | Real errors people make, the exact error message or wrong result, the fix (≥ 4) | ✅ | ✅ |
-| 🐛 **Debugging it** | How to see what's going on when it breaks: logs, tools, the questions to ask | ✅ | ✅ |
-| 🔗 **Connections** | How it links to other concepts/topics, and what to learn next | ✅ | ✅ |
-| 🏛️ **Why it's designed this way** | The problem it was invented to solve, what came before, the trade-offs | | ✅ |
-| 🎓 **Expert level** | Performance, security, scale, interview-level questions, what seniors know | | ✅ |
+| 🔩 **Under the hood** | What actually happens step by step inside: the real mechanism, data flow, the code/math the tool runs. Diagrams. | ✓ | ✓ |
+| 🧗 **Edge cases** | Inputs/situations where it behaves surprisingly, and why (≥ 4) | ✓ | ✓ |
+| 🪤 **Common mistakes** | Real errors people make, the exact error message or wrong result, the fix (≥ 4) | ✓ | ✓ |
+| 🪲 **Debugging it** | How to see what's going on when it breaks: logs, tools, the questions to ask | ✓ | ✓ |
+| 🕸️ **Connections** | How it links to other concepts/topics, and what to learn next | ✓ | ✓ |
+| 📐 **Why it's designed this way** | The problem it was invented to solve, what came before, the trade-offs | | ✓ |
+| 🥷 **Expert level** | Performance, security, scale, interview-level questions, what seniors know | | ✓ |
 
-**Master extras:** a final **capstone** (`practice/capstone-<name>/` for coding, or a multi-step real problem on its own page for math) that uses every part. Plus a `comeback.html` that covers all parts.
+**Master extras:** a final 🏔️ **capstone** (`practice/capstone-<name>/` for coding, or a multi-step real problem on its own page for math) that uses every part. Plus a `comeback.html` that covers all parts.
 
 Depth means **going further down, not starting harder.** The core of a Deep or Master lesson is as gentle as a Normal one. Depth lives in Going deeper, plus more examples and harder exercises. A Deep lesson on the Spring filter chain should show the actual filters in order, what each one does with the request, what happens when one throws, and how to print the chain. Not 3 more paragraphs of the Normal content.
 
 ## 5. More exercises / comeback
 
-**More exercises:** read `progress.md` (target the struggles), then append to `exercises.html` a new `<section id="extra-<date>">` (+ TOC entry). If they asked for "harder", it's mostly 🔴 boss, mixing in earlier lessons and topics. Coding: add terminal tasks in `practice/`. Use unique `data-id`s (never reuse an old one, or saved progress breaks).
+**More exercises:** read `progress.md` (target the struggles), then append to `exercises.html` a new `<section id="extra-<date>">` (+ TOC entry). If they asked for "harder", it's mostly 👾 boss, mixing in earlier lessons and topics. Coding: add terminal tasks in `practice/`. Use unique `data-id`s (never reuse an old one, or saved progress breaks).
 
 **Comeback:** refresh `comeback.html`: re-check that the key points still cover the whole topic, and **replace** the warm-up + hard problems with fresh ones (new numbers, new situations), so coming back is never a re-run. Use new `data-id`s for the new problems. Open the page. In chat, give the 3 most important key points in one line each, then *"Open the page and hit the first hard problem."*
 
@@ -176,22 +177,24 @@ Run it in the background, ignore its output, and don't block on it.
 After making something, reply in this shape (≤ 10 lines):
 
 ```
-✅ Made: Lesson 2: Solving two-step equations (≈12 min)
-   📖 math/linear-equations/02-lesson-two-step.html  (opened)
-   ✍️ +7 exercises (2 🧩 · 2 🟢 · 2 🟡 · 1 🔴)
-   💻 Terminal boss: practice/02-budget-split → `node test.js`
+🧭 Made: Lesson 2: Solving two-step equations (Normal, ≈12 min)
+   📜 math/linear-equations/02-lesson-two-step.html  (opened)
+   🎲 +7 exercises (2 🔦 · 2 🥋 · 2 🛰️ · 1 👾)
+   📟 Terminal boss: practice/02-budget-split → `node test.js`
 
-👉 Next: do the lesson, then the 🔴 boss. Ask me if anything's unclear.
+🛤️ Next: do the lesson, then the 👾 boss. Ask me if anything's unclear.
 ```
+
+The first emoji is the lesson's depth (🪁 🧭 🤿 🐉).
 
 **First run only** (library just created), show this card:
 
 ```
-📚 How /learn works
+How /learn works
 1. /learn <anything>: a topic, "more problems", "I forgot X", a question
-2. Each topic gets: 📖 lessons · ✍️ exercises · 🔁 comeback · 📌 cheatsheet
+2. Each topic gets: 📜 lessons · 🎲 exercises · 🪃 comeback · 🧾 cheatsheet
 3. Open main.html (bookmark it): every lesson is one click from there. Works without me.
-4. Hard coding exercises live in practice/ → run them in your terminal
+4. 📟 Hard coding exercises live in practice/ → run them in your terminal
 ```
 
 When helping with a question in chat: show, don't lecture. A tiny example or ASCII diagram first, then 2–4 lines of why.

@@ -50,9 +50,9 @@
 /learn next lesson on react hooks
 /learn more hard problems on vectors
 /learn I forgot how SQL joins work</code></pre>
-        It always asks how deep to go: quick, normal, deep, or master.</li>
-      <li>Every topic has <strong>lessons</strong>, <strong>exercises</strong> (guided, practice, real-world, boss), a <strong>review</strong> for when you've forgotten, and a <strong>cheatsheet</strong>.</li>
-      <li>Hard coding exercises are real files in each topic's <code>practice/</code> folder. Run them in your terminal.</li>
+        It always asks how deep to go: 🪁 quick, 🧭 normal, 🤿 deep, or 🐉 master.</li>
+      <li>Every topic has 📜 <strong>lessons</strong>, 🎲 <strong>exercises</strong> (🔦 guided, 🥋 practice, 🛰️ real-world, 👾 boss), a 🪃 <strong>review</strong> for when you've forgotten, and a 🧾 <strong>cheatsheet</strong>.</li>
+      <li>📟 Hard coding exercises are real files in each topic's <code>practice/</code> folder. Run them in your terminal.</li>
       <li>Everything here works without Claude.</li>
     </ol>
   </details>
@@ -159,9 +159,9 @@
         (x.lessons.length ? '<ol class="t-lessons">' + x.lessons.map((l) =>
           '<li' + (hitLesson(l) ? ' class="hit"' : "") + '><a href="' + x.base + l.file + '"><span class="n">' + l.n + "</span>" + esc(l.title) + "</a></li>").join("") + "</ol>" : "") +
         '<div class="t-links">' +
-          '<a href="' + x.base + 'exercises.html">Exercises</a>' +
-          '<a href="' + x.base + 'comeback.html"' + (rust(x.d) === "rusty" ? ' class="urge"' : "") + ">Review</a>" +
-          '<a href="' + x.base + 'cheatsheet.html">Cheatsheet</a>' +
+          '<a href="' + x.base + 'exercises.html">🎲 Exercises</a>' +
+          '<a href="' + x.base + 'comeback.html"' + (rust(x.d) === "rusty" ? ' class="urge"' : "") + ">🪃 Review</a>" +
+          '<a href="' + x.base + 'cheatsheet.html">🧾 Cheatsheet</a>' +
         "</div>" +
       "</div></details>";
   }
