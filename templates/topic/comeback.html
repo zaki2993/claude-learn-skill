@@ -29,9 +29,11 @@
     </div>
   </div>
 
-  <!-- STEP 2: ONE warm-up to wake the memory. Easy, with a hint. -->
+  <!-- STEP 2: ONE warm-up to wake the memory. Easy, with a hint.
+       Ids are dated: cb<yyyymmdd>-w1 (warm-up), cb<yyyymmdd>-h1, -h2... (hard), with the date you wrote them.
+       A refresh writes new problems with today's date, so old solved marks never stick to new problems. -->
   <h2>Warm-up</h2>
-  <div class="q" data-id="warm" data-answer="{{ANSWER}}">
+  <div class="q" data-id="cb{{YYYYMMDD}}-w1" data-answer="{{ANSWER}}">
     <p>{{EASY_QUESTION}}</p>
     <input class="q-input">
     <details class="hint"><summary>🕯️ Peek at key point</summary><p>{{WHICH_KEY_POINT_AND_HOW}}</p></details>
@@ -40,7 +42,7 @@
   <!-- STEP 3: HARD problems right away. Mixed across the whole topic. Each has "peek at key point" help
        instead of a full lesson. Refresh these when "/learn" sees the topic again so they don't go stale. -->
   <h2>Jump back in</h2>
-  <div class="q" data-id="hard1" data-answer="{{ANSWER}}">
+  <div class="q" data-id="cb{{YYYYMMDD}}-h1" data-answer="{{ANSWER}}">
     <p><span class="level boss">👾 hard</span> {{HARD_MIXED_PROBLEM}}</p>
     <input class="q-input">
     <details class="keypoint-more"><summary>🕯️ Peek at key point {{K}}</summary><p>{{...}}</p></details>

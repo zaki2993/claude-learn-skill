@@ -33,7 +33,7 @@
   <div class="problem">
     <p>{{REAL_PROBLEM or SURPRISING_QUESTION}}</p>
   </div>
-  <div class="q" data-id="hook" data-answer="{{ANSWER}}">
+  <div class="q" data-id="l{{N}}-hook" data-answer="{{ANSWER}}">
     <p>{{A GUESS / PREDICTION THE READER CAN MAKE WITH NO KNOWLEDGE}}</p>
     <ul class="q-choices"><li data-opt="a">{{...}}</li><li data-opt="b">{{...}}</li><li data-opt="c">{{...}}</li></ul>
     <p class="q-why">{{THE REVEAL, and the question it raises}}</p>
@@ -108,15 +108,16 @@
   </ol>
   <div class="callout good"><strong>🏅 You can now</strong> {{WHAT_YOU_CAN_NOW_DO}}</div>
 
-  <!-- 7. YOUR TURN: 3–4 quick checks (guided → practice). The full ladder lives in exercises.html. -->
+  <!-- 7. YOUR TURN: quick checks, count by depth, SKILL.md §4e (guided → practice). Ids: l<N>-q1, l<N>-q2...
+       The full ladder lives in exercises.html. -->
   <h2 id="your-turn">Your turn</h2>
-  <div class="q" data-answer="{{ANSWER|ALT_ANSWER}}">
+  <div class="q" data-id="l{{N}}-q1" data-answer="{{ANSWER|ALT_ANSWER}}">
     <p><span class="level guided">🔦 Guided</span> {{QUESTION}}</p>
     <input class="q-input" placeholder="{{HINT_FORMAT e.g. x = ?}}">
     <details class="hint"><summary>🕯️ Hint</summary><p>{{HINT}}</p></details>
     <p class="q-why">{{WHY_THIS_IS_RIGHT}}</p>
   </div>
-  <div class="q" data-answer="b">
+  <div class="q" data-id="l{{N}}-q2" data-answer="b">
     <p><span class="level practice">🥋 Practice</span> {{QUESTION}}</p>
     <ul class="q-choices">
       <li data-opt="a">{{OPTION}}</li>

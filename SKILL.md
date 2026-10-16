@@ -69,7 +69,7 @@ Add "(Recommended)" to the option matching `learn.json` → `defaultLength`, and
 ## 3. Overview (`/learn` with nothing)
 
 Read `library.js` and the `progress.md` of recently studied topics. Reply in ≤ 8 lines:
-- 🦴 rusty topics (lastStudied 3+ weeks ago) → suggest their 🪃 comeback page
+- 🦴 rusty topics (lastStudied 3+ weeks ago) → suggest their 🪃 comeback page. You only see `lastStudied` (the last lesson Claude made); `main.html` also counts browser visits you can't see. So say "last lesson was N weeks ago", not "you haven't looked at it in N weeks".
 - 🌱 the most recent topic + its 🛤️ next step (from `progress.md`)
 - *"What do you want? e.g. `/learn <topic>`"*
 
@@ -98,7 +98,7 @@ In `<library>/<subject>/<topic>/`:
 | File | Action |
 |---|---|
 | `NN-lesson-<slug>.html` | **create** from [templates/topic/lesson.html](./templates/topic/lesson.html). `NN` = 01, 02... |
-| `exercises.html` | create from template, or **append** a `<section id="lesson-N">` (+ TOC entry) |
+| `exercises.html` | create from template, or **append** a `<section id="lesson-N">` (the sidebar lists it; no hand-written TOC) |
 | `comeback.html` | create, or **rewrite** so it covers the whole topic in 5–7 key points |
 | `cheatsheet.html` | create, or **append** this lesson's cheat card (+ glossary terms) |
 | `practice/NN-<name>/` | coding topics: the terminal boss (see [PAGES.md](./PAGES.md#practice-folder)) |
@@ -157,9 +157,9 @@ Depth means **going further down, not starting harder.** The core of a Deep or M
 
 ## 5. More exercises / comeback
 
-**More exercises:** read `progress.md` (target the struggles), then append to `exercises.html` a new `<section id="extra-<date>">` (+ TOC entry). If they asked for "harder", it's mostly 👾 boss, mixing in earlier lessons and topics. Coding: add terminal tasks in `practice/`. Use unique `data-id`s (never reuse an old one, or saved progress breaks).
+**More exercises:** read `progress.md` (target the struggles), then append to `exercises.html` a new `<section id="extra-<date>">` with an `<h2>` (the sidebar lists it). If they asked for "harder", it's mostly 👾 boss, mixing in earlier lessons and topics. Coding: add terminal tasks in `practice/`. Use unique `data-id`s (never reuse an old one, or saved progress breaks).
 
-**Comeback:** refresh `comeback.html`: re-check that the key points still cover the whole topic, and **replace** the warm-up + hard problems with fresh ones (new numbers, new situations), so coming back is never a re-run. Use new `data-id`s for the new problems. Open the page. In chat, give the 3 most important key points in one line each, then *"Open the page and hit the first hard problem."*
+**Comeback:** refresh `comeback.html`: re-check that the key points still cover the whole topic, and **replace** the warm-up + hard problems with fresh ones (new numbers, new situations), so coming back is never a re-run. Give the new problems new dated `data-id`s (`cb<yyyymmdd>-w1`, `cb<yyyymmdd>-h1`...: [PAGES.md](./PAGES.md#quizzes-auto-checked)). Open the page. In chat, give the 3 most important key points in one line each, then *"Open the page and hit the first hard problem."*
 
 ## 6. Updating pages
 

@@ -1,12 +1,5 @@
 {
   "learnLibrary": 1,
-  "language": "en",
   "defaultLength": "normal",
-  "lengths": {
-    "quick": "🪁 ~5 min: core idea, 2 examples, 5 exercises",
-    "normal": "🧭 ~15 min: idea explained + practiced, 4 examples, 10 exercises",
-    "deep": "🤿 ~40 min: under the hood, edge cases, mistakes, debugging; 8 examples, 18 exercises",
-    "master": "🐉 2h+: 3–5 part series covering everything + capstone project"
-  },
   "notes": []
 }

@@ -3,7 +3,7 @@
 window.LIBRARY = {
   subjects: [
     // {
-    //   id: "math", title: "Math", emoji: "➗",
+    //   id: "math", title: "Math",
     //   topics: [
     //     {
     //       id: "linear-equations", title: "Linear equations",

@@ -114,7 +114,18 @@ Plain paragraphs between components are good: they give the eye a rest. Aim for 
 </div>
 ```
 
-- `data-id` must be **unique on the page and never change** (solved state is saved under it). Pattern: `l<lesson>-<g|p|r|b><n>`, extras `x<yyyymmdd>-<n>`.
+- **Every `.q` and `.runner` has an explicit `data-id`.** Without one, `learn.js` falls back to the position on the page, which shifts when a question is inserted and marks the wrong question as solved.
+- `data-id` must be **unique on the page and never change** (solved state is saved under it). Patterns:
+
+  | Where | Pattern | Example |
+  |---|---|---|
+  | Lesson hook | `l<lesson>-hook` | `l2-hook` |
+  | Lesson quick checks ("Your turn", Expert level) | `l<lesson>-q<n>` | `l2-q3` |
+  | `exercises.html` lesson section | `l<lesson>-<g\|p\|r\|b><n>` (runners: `c<n>`) | `l2-p3`, `l2-c1` |
+  | `exercises.html` extra section | `x<yyyymmdd>-<n>` | `x20261016-4` |
+  | `comeback.html` | `cb<yyyymmdd>-w<n>` (warm-up), `cb<yyyymmdd>-h<n>` (hard) | `cb20261016-h2` |
+
+  The comeback date is the day the problems were written. A refresh replaces them with problems dated today.
 - Typed answers: prefer numbers or short exact tokens. Text compare ignores case and spaces. List every reasonable form (`-2|x=-2`).
 - Multiple choice: all options about the same length. The right one must not stand out. Wrong options = real misconceptions.
 
