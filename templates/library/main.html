@@ -17,6 +17,7 @@
   </header>
 
   <div id="continue"></div>
+  <section id="due" class="due" hidden aria-label="Due for review"></section>
 
   <div class="finder">
     <input class="search" id="search" type="search" placeholder="Filter topics and lessons, or search key points" autocomplete="off" aria-label="Filter the library">
@@ -50,9 +51,9 @@
 /learn next lesson on react hooks
 /learn more hard problems on vectors
 /learn I forgot how SQL joins work</code></pre>
-        It always asks how deep to go: quick, normal, deep, or master.</li>
-      <li>Every topic has <strong>lessons</strong>, <strong>exercises</strong> (guided, practice, real-world, boss), a <strong>review</strong> for when you've forgotten, and a <strong>cheatsheet</strong>.</li>
-      <li>Hard coding exercises are real files in each topic's <code>practice/</code> folder. Run them in your terminal.</li>
+        It always asks how deep to go: 🪁 quick, 🧭 normal, 🤿 deep, or 🐉 master.</li>
+      <li>Every topic has 📜 <strong>lessons</strong>, 🎲 <strong>exercises</strong> (🔦 guided, 🥋 practice, 🛰️ real-world, 👾 boss), a 🪃 <strong>review</strong> for when you've forgotten, and a 🧾 <strong>cheatsheet</strong>.</li>
+      <li>📟 Hard coding exercises are real files in each topic's <code>practice/</code> folder. Run them in your terminal.</li>
       <li>Everything here works without Claude.</li>
     </ol>
   </details>
@@ -64,6 +65,25 @@
   const read = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } };
   const write = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
   const visits = read("learn:visits", {});
+  // Same id the pages use for their saved answers (learn.js).
+  const LIB_ID = LIB.id ? String(LIB.id) : "lib";
+  const comebacks = read("learn:comebacks:" + LIB_ID, {});
+  const INTERVALS = Array.isArray(LIB.reviewIntervalsDays) && LIB.reviewIntervalsDays.length ? LIB.reviewIntervalsDays : [1, 3, 7, 21];
+  // Every localStorage key, read once: per-page item lists and solved answers.
+  const keys = [];
+  try { for (let i = 0; i < localStorage.length; i++) keys.push(localStorage.key(i)); } catch (e) {}
+  // "N / M solved" for a topic, over the pages opened so far (each page saves its list of items).
+  function solvedCount(topicPath) {
+    const pre = "learn:items:" + LIB_ID + ":" + topicPath + "/";
+    let n = 0, m = 0;
+    keys.filter((k) => k.startsWith(pre)).forEach((k) => {
+      const ids = read(k, []);
+      const solved = read("learn:solved:" + k.slice("learn:items:".length), {});
+      m += ids.length;
+      n += ids.filter((id) => solved[id]).length;
+    });
+    return { n, m };
+  }
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
   const daysSince = (iso) => (iso ? Math.floor((Date.now() - new Date(iso + "T00:00:00").getTime()) / 86400000) : Infinity);
@@ -83,8 +103,15 @@
     const a = t.lastStudied || "", b = visits[s.id + "/" + t.id] || "";
     const d = daysSince(a > b ? a : b);
     const lessons = t.lessons || [];
+    // Spaced review: the k-th comeback is due INTERVALS[k] days after the last one
+    // (the first one, INTERVALS[0] days after the last study).
+    const cb = comebacks[s.id + "/" + t.id] || { n: 0, last: "" };
+    const since = cb.n ? daysSince(cb.last) : d;
+    const wait = INTERVALS[Math.min(cb.n, INTERVALS.length - 1)];
     topics.push({
       s, t, d, lessons, base: s.id + "/" + t.id + "/",
+      reviews: cb.n, late: since === Infinity ? -1 : since - wait,
+      score: solvedCount(s.id + "/" + t.id),
       hay: [t.title, t.summary, (t.tags || []).join(" "), lessons.map((l) => l.title + " " + (l.tags || []).join(" ")).join(" ")].join(" ").toLowerCase(),
     });
   }));
@@ -113,6 +140,17 @@
       '<a class="continue" href="' + recent.base + last.file + '">' +
       '<span class="c-where">Continue with ' + esc(recent.t.title) + ", lesson " + last.n + "</span>" +
       '<span class="c-title">' + esc(last.title) + '</span><span class="c-go">Open lesson</span></a>';
+  }
+
+  // Due for review: hidden when nothing is due.
+  const due = topics.filter((x) => x.late >= 0).sort((x, y) => y.late - x.late);
+  if (due.length) {
+    const box = document.getElementById("due");
+    box.innerHTML = "<h2>🪃 Due for review</h2><ul>" + due.slice(0, 6).map((x) =>
+      '<li><a href="' + x.base + 'comeback.html">' + esc(x.t.title) + "</a><small>" +
+      (x.reviews ? "review " + (x.reviews + 1) : "first review") + " · " + (x.late === 0 ? "due today" : "due " + ago(x.late)) +
+      "</small></li>").join("") + "</ul>";
+    box.hidden = false;
   }
 
   // State: subject tab, sort, filter text, open rows. Tab, sort and open rows are remembered.
@@ -152,16 +190,17 @@
         '<i class="rust ' + rust(x.d) + '" title="' + rust(x.d) + '"></i>' +
         '<span class="t-title">' + esc(x.t.title) + "</span>" +
         (state.subject === "all" ? '<span class="t-subject">' + esc(x.s.title) + "</span>" : "") +
-        '<span class="t-meta">' + x.lessons.length + (x.lessons.length === 1 ? " lesson" : " lessons") + " · " + ago(x.d) + "</span>" +
+        '<span class="t-meta">' + x.lessons.length + (x.lessons.length === 1 ? " lesson" : " lessons") + " · " +
+          (x.score.m ? x.score.n + " / " + x.score.m + " solved · " : "") + ago(x.d) + "</span>" +
       "</summary>" +
       '<div class="t-body">' +
         (x.t.summary ? '<p class="t-summary">' + esc(x.t.summary) + "</p>" : "") +
         (x.lessons.length ? '<ol class="t-lessons">' + x.lessons.map((l) =>
           '<li' + (hitLesson(l) ? ' class="hit"' : "") + '><a href="' + x.base + l.file + '"><span class="n">' + l.n + "</span>" + esc(l.title) + "</a></li>").join("") + "</ol>" : "") +
         '<div class="t-links">' +
-          '<a href="' + x.base + 'exercises.html">Exercises</a>' +
-          '<a href="' + x.base + 'comeback.html"' + (rust(x.d) === "rusty" ? ' class="urge"' : "") + ">Review</a>" +
-          '<a href="' + x.base + 'cheatsheet.html">Cheatsheet</a>' +
+          '<a href="' + x.base + 'exercises.html">🎲 Exercises</a>' +
+          '<a href="' + x.base + 'comeback.html"' + (rust(x.d) === "rusty" ? ' class="urge"' : "") + ">🪃 Review</a>" +
+          '<a href="' + x.base + 'cheatsheet.html">🧾 Cheatsheet</a>' +
         "</div>" +
       "</div></details>";
   }

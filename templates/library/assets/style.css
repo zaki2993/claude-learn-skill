@@ -274,7 +274,9 @@ details.keypoint-more > summary { color: var(--accent); }
 .q-feedback.ok { color: var(--good); }
 .q-feedback.no { color: var(--bad); }
 .q-why { display: none; margin: 8px 0; padding: 10px 14px; background: var(--good-soft); border-radius: 8px; }
-.q.correct .q-why { display: block; }
+.q.correct .q-why, .q.revealed .q-why { display: block; }
+.q-reveal { margin: 4px 0 8px; }
+.q-reveal[hidden] { display: none; }
 
 /* Mobile top bar: menu + page progress */
 .progress { display: none; }
@@ -406,6 +408,9 @@ svg.plot .tick { fill: var(--muted); font-size: 11px; font-family: var(--mono); 
 .sb-track { height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden; margin-top: 6px; }
 .sb-fill { height: 100%; width: 0; background: var(--good); transition: width .4s ease; }
 .sb-progress button { margin-top: 8px; font-size: .78rem; padding: 2px 8px; font-weight: 400; }
+.sb-share { font-size: .8rem; color: var(--muted); }
+.sb-share button { font-size: .8rem; padding: 3px 10px; font-weight: 400; }
+.sb-share p { margin: 4px 0 0; line-height: 1.35; }
 .sb-foot { margin-top: auto; display: flex; gap: 8px; align-items: center; justify-content: space-between; color: var(--muted); font-size: .8rem; }
 
 .topbar { display: none; }
@@ -478,6 +483,12 @@ svg.plot .tick { fill: var(--muted); font-size: 11px; font-family: var(--mono); 
 .rust.fresh { background: var(--good); }
 .rust.fading { background: var(--warn); }
 .rust.rusty { background: var(--bad); }
+.due { border: 1px solid var(--border); border-left: 3px solid var(--warn); border-radius: var(--radius); background: var(--surface); padding: 12px 18px; margin: 0 0 22px; }
+.due h2 { font-size: 1rem; margin: 0 0 6px; }
+.due ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.due a { font-weight: 700; text-decoration: none; }
+.due a:hover { text-decoration: underline; }
+.due small { color: var(--muted); margin-left: 8px; }
 .legend { display: flex; gap: 18px; color: var(--muted); font-size: .82rem; flex-wrap: wrap; }
 .legend span { display: inline-flex; gap: 6px; align-items: center; }
 .results { list-style: none; padding: 0; }

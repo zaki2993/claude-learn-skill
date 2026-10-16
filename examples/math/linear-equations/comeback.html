@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Comeback · Linear equations</title>
+<script>try{var t=JSON.parse(localStorage.getItem("learn:theme"));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/vendor/katex/katex.min.css">
+<script defer src="../../assets/vendor/katex/katex.min.js"></script>
+<script defer src="../../assets/vendor/katex/contrib/auto-render.min.js"></script>
+<script defer src="../../assets/vendor/highlight/highlight.min.js"></script>
+<script defer src="../../assets/learn.js"></script>
+</head>
+<body data-topic="math/linear-equations">
+<main>
+  <nav class="crumbs"><a href="../../main.html">Library</a> › Math › Linear equations › Comeback</nav>
+  <h1>Back to Linear equations</h1>
+  <p class="subtitle">You already learned this. You're not starting over, just dusting it off. 2 minutes of key points, then straight to the good stuff.</p>
+
+  <h2>The key points (2 min)</h2>
+  <div class="keypoints">
+    <div class="keypoint" id="kp-1">
+      <p><strong>An equation is a balance: do the same thing to both sides and it stays true.</strong></p>
+      <pre><code>3 + 2x = 17
+    2x = 14      (took 3 off both sides)</code></pre>
+      <span class="src"><a href="01-lesson-find-the-missing-number.html#how">Full explanation: Lesson 1</a></span>
+    </div>
+    <div class="keypoint" id="kp-2">
+      <p><strong>Undo in reverse order: the last thing done comes off first.</strong></p>
+      <pre><code>5x - 7 = 38   →  add 7 first  →  5x = 45  →  x = 9</code></pre>
+      <span class="src"><a href="01-lesson-find-the-missing-number.html#picture">Full explanation: Lesson 1</a></span>
+    </div>
+    <div class="keypoint" id="kp-3">
+      <p><strong>x on both sides? Take the smaller x part off both sides, then solve as usual.</strong></p>
+      <pre><code>20 + 0.10m = 5 + 0.25m  →  15 = 0.15m  →  m = 100</code></pre>
+      <span class="src"><a href="01-lesson-find-the-missing-number.html#examples">Full explanation: Lesson 1, example 4</a></span>
+    </div>
+    <div class="keypoint" id="kp-4">
+      <p><strong>Always check: put the answer back in.</strong></p>
+      <pre><code>3 + 2 × 7 = 17   (both sides match)</code></pre>
+      <span class="src"><a href="01-lesson-find-the-missing-number.html#solve">Full explanation: Lesson 1</a></span>
+    </div>
+  </div>
+
+  <h2>Warm-up</h2>
+  <div class="q" data-id="cb20261016-w1" data-answer="12|x=12">
+    <p>Solve \( x + 8 = 20 \)</p>
+    <input class="q-input">
+    <details class="hint"><summary>🕯️ Peek at key point</summary><p>Key point 1: take 8 off both sides.</p></details>
+  </div>
+
+  <h2>Jump back in</h2>
+  <div class="q" data-id="cb20261016-h1" data-answer="8|8km">
+    <p><span class="level boss">👾 hard</span> A ride-share charges $2.50 to start plus $1.50 per km. The ride cost $14.50. How many km?</p>
+    <input class="q-input">
+    <details class="keypoint-more"><summary>🕯️ Peek at key point 2</summary><p>The start fee was added last, so it comes off first.</p></details>
+    <details class="solution"><summary>🗝️ Full solution</summary><ol class="work">
+      <li>\( 2.50 + 1.50k = 14.50 \) <span class="why">why: start fee plus kilometre money.</span></li>
+      <li>Take 2.50 off both sides: \( 1.50k = 12 \) <span class="why">why: fee off first.</span></li>
+      <li>Divide by 1.50: \( k = 8 \) <span class="why">why: undo "1.50 times".</span></li>
+    </ol></details>
+  </div>
+  <div class="q" data-id="cb20261016-h2" data-answer="6|x=6">
+    <p><span class="level boss">👾 hard</span> Solve \( 7 + 3x = x + 19 \)</p>
+    <input class="q-input">
+    <details class="keypoint-more"><summary>🕯️ Peek at key point 3</summary><p>Take the smaller \( x \) part, \( x \), off both sides first.</p></details>
+    <details class="solution"><summary>🗝️ Full solution</summary><ol class="work">
+      <li>Take \( x \) off both sides: \( 7 + 2x = 19 \) <span class="why">why: \( x \) on one side only.</span></li>
+      <li>Take 7 off both sides: \( 2x = 12 \) <span class="why">why: plain number off next.</span></li>
+      <li>Divide by 2: \( x = 6 \) <span class="why">why: check: \( 7 + 18 = 25 = 6 + 19 \).</span></li>
+    </ol></details>
+  </div>
+
+  <div class="callout good"><strong>🏅 You're back</strong> Go to <a href="exercises.html">🎲 Exercises</a> for more bosses, or ask <code>/learn</code> for the next lesson.</div>
+  <p class="ask-claude">Need a quick lookup instead? <a href="cheatsheet.html">🧾 Open the cheatsheet</a></p>
+</main>
+</body>
+</html>

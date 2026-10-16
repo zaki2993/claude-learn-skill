@@ -6,10 +6,10 @@
 <title>Comeback · {{TOPIC_TITLE}}</title>
 <script>try{var t=JSON.parse(localStorage.getItem("learn:theme"));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="stylesheet" href="../../assets/style.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<link rel="stylesheet" href="../../assets/vendor/katex/katex.min.css">
+<script defer src="../../assets/vendor/katex/katex.min.js"></script>
+<script defer src="../../assets/vendor/katex/contrib/auto-render.min.js"></script>
+<script defer src="../../assets/vendor/highlight/highlight.min.js"></script>
 <script defer src="../../assets/learn.js"></script>
 </head>
 <body data-topic="{{SUBJECT_ID}}/{{TOPIC_ID}}">
@@ -29,26 +29,28 @@
     </div>
   </div>
 
-  <!-- STEP 2: ONE warm-up to wake the memory. Easy, with a hint. -->
+  <!-- STEP 2: ONE warm-up to wake the memory. Easy, with a hint.
+       Ids are dated: cb<yyyymmdd>-w1 (warm-up), cb<yyyymmdd>-h1, -h2... (hard), with the date you wrote them.
+       A refresh writes new problems with today's date, so old solved marks never stick to new problems. -->
   <h2>Warm-up</h2>
-  <div class="q" data-id="warm" data-answer="{{ANSWER}}">
+  <div class="q" data-id="cb{{YYYYMMDD}}-w1" data-answer="{{ANSWER}}">
     <p>{{EASY_QUESTION}}</p>
     <input class="q-input">
-    <details class="hint"><summary>Peek at key point</summary><p>{{WHICH_KEY_POINT_AND_HOW}}</p></details>
+    <details class="hint"><summary>🕯️ Peek at key point</summary><p>{{WHICH_KEY_POINT_AND_HOW}}</p></details>
   </div>
 
   <!-- STEP 3: HARD problems right away. Mixed across the whole topic. Each has "peek at key point" help
        instead of a full lesson. Refresh these when "/learn" sees the topic again so they don't go stale. -->
   <h2>Jump back in</h2>
-  <div class="q" data-id="hard1" data-answer="{{ANSWER}}">
-    <p><span class="level boss">hard</span> {{HARD_MIXED_PROBLEM}}</p>
+  <div class="q" data-id="cb{{YYYYMMDD}}-h1" data-answer="{{ANSWER}}">
+    <p><span class="level boss">👾 hard</span> {{HARD_MIXED_PROBLEM}}</p>
     <input class="q-input">
-    <details class="keypoint-more"><summary>Peek at key point {{K}}</summary><p>{{...}}</p></details>
-    <details class="solution"><summary>Full solution</summary><ol class="work"><li>{{...}}</li></ol></details>
+    <details class="keypoint-more"><summary>🕯️ Peek at key point {{K}}</summary><p>{{...}}</p></details>
+    <details class="solution"><summary>🗝️ Full solution</summary><ol class="work"><li>{{...}}</li></ol></details>
   </div>
 
-  <div class="callout good"><strong>You're back</strong> Go to <a href="exercises.html">Exercises</a> for more bosses, or ask <code>/learn</code> for the next lesson.</div>
-  <p class="ask-claude">Need a quick lookup instead? <a href="cheatsheet.html">Open the cheatsheet</a></p>
+  <div class="callout good"><strong>🏅 You're back</strong> Go to <a href="exercises.html">🎲 Exercises</a> for more bosses, or ask <code>/learn</code> for the next lesson.</div>
+  <p class="ask-claude">Need a quick lookup instead? <a href="cheatsheet.html">🧾 Open the cheatsheet</a></p>
 </main>
 </body>
 </html>

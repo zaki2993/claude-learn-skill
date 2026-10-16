@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01 · How do you find a missing number? · Linear equations</title>
+<script>try{var t=JSON.parse(localStorage.getItem("learn:theme"));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="../../assets/style.css">
+<!-- Math rendering + code highlighting, vendored in assets/vendor/ so they work offline. -->
+<link rel="stylesheet" href="../../assets/vendor/katex/katex.min.css">
+<script defer src="../../assets/vendor/katex/katex.min.js"></script>
+<script defer src="../../assets/vendor/katex/contrib/auto-render.min.js"></script>
+<script defer src="../../assets/vendor/highlight/highlight.min.js"></script>
+<script defer src="../../assets/learn.js"></script>
+</head>
+<body data-topic="math/linear-equations">
+<main>
+  <nav class="crumbs"><a href="../../main.html">Library</a> › Math › Linear equations › Lesson 1</nav>
+  <h1>How do you find a missing number?</h1>
+  <p class="subtitle">Work backwards from a total to the one number nobody told you.</p>
+  <div class="meta">
+    <span class="pill">15 min</span>
+    <span class="pill">Needs: adding, taking away, dividing</span>
+    <span class="pill">🧭 Normal</span>
+  </div>
+
+  <h2 id="problem">A receipt with a hole in it</h2>
+  <div class="problem">
+    <p>A taxi app charges a <strong>$3 start fee</strong>, then <strong>$2 for every kilometre</strong>. Your ride cost <strong>$17</strong>.</p>
+    <p>The app forgot to show the distance. How far did you go?</p>
+  </div>
+  <div class="q" data-id="l1-hook" data-answer="a">
+    <p>Take a guess. No working needed.</p>
+    <ul class="q-choices"><li data-opt="a">7 km</li><li data-opt="b">8.5 km</li><li data-opt="c">10 km</li></ul>
+    <p class="q-why">It's 7 km. 8.5 is what you get if you forget the start fee. 10 is what you get if you add the fee instead of taking it away. So how do you land on 7 every time, without guessing?</p>
+  </div>
+  <p>So how do you go backwards from a total to the number that's missing?</p>
+
+  <h2 id="picture">Cut the receipt into pieces</h2>
+  <p>Let's not use any math words yet. Just draw the receipt as a bar, and cut it up.</p>
+  <div class="card steps">
+    <div class="step">
+      <p>Here's the whole receipt: $17. Somewhere inside it is the start fee, and the money for every kilometre.</p>
+      <svg class="diagram" viewBox="0 0 540 80" role="img" aria-label="One long bar labelled 17 dollars">
+        <rect x="10" y="16" width="510" height="40" rx="6" style="fill:var(--accent-soft);stroke:var(--accent)"/>
+        <text x="265" y="42" text-anchor="middle" fill="currentColor" font-weight="700">$17 receipt</text>
+      </svg>
+    </div>
+    <div class="step">
+      <p>The first $3 is the start fee. You pay it even for zero kilometres. Cut it off. Everything left, <strong>$14</strong>, is kilometre money.</p>
+      <svg class="diagram" viewBox="0 0 540 80" role="img" aria-label="The bar cut into a 3 dollar fee and 14 dollars of kilometre money">
+        <rect x="10" y="16" width="90" height="40" rx="6" style="fill:var(--warn-soft);stroke:var(--warn)"/>
+        <text x="55" y="42" text-anchor="middle" fill="currentColor" font-weight="700">fee $3</text>
+        <rect x="104" y="16" width="416" height="40" rx="6" style="fill:var(--accent-soft);stroke:var(--accent)"/>
+        <text x="312" y="42" text-anchor="middle" fill="currentColor" font-weight="700">kilometre money $14</text>
+      </svg>
+    </div>
+    <div class="step">
+      <p>Each kilometre is a $2 piece. How many $2 pieces fit in $14? Count them: <strong>7</strong>. You went 7 km.</p>
+      <svg class="diagram" viewBox="0 0 540 96" role="img" aria-label="The 14 dollars cut into seven 2 dollar pieces">
+        <rect x="10" y="16" width="90" height="40" rx="6" style="fill:var(--warn-soft);stroke:var(--warn)"/>
+        <text x="55" y="42" text-anchor="middle" fill="currentColor" font-weight="700">fee $3</text>
+        <g style="fill:var(--good-soft);stroke:var(--good)">
+          <rect x="104" y="16" width="56" height="40" rx="5"/><rect x="164" y="16" width="56" height="40" rx="5"/>
+          <rect x="224" y="16" width="56" height="40" rx="5"/><rect x="284" y="16" width="56" height="40" rx="5"/>
+          <rect x="344" y="16" width="56" height="40" rx="5"/><rect x="404" y="16" width="56" height="40" rx="5"/>
+          <rect x="464" y="16" width="56" height="40" rx="5"/>
+        </g>
+        <g fill="currentColor" text-anchor="middle" font-weight="700">
+          <text x="132" y="42">$2</text><text x="192" y="42">$2</text><text x="252" y="42">$2</text><text x="312" y="42">$2</text>
+          <text x="372" y="42">$2</text><text x="432" y="42">$2</text><text x="492" y="42">$2</text>
+        </g>
+        <g fill="currentColor" text-anchor="middle" font-size="13">
+          <text x="132" y="78">1 km</text><text x="192" y="78">2</text><text x="252" y="78">3</text><text x="312" y="78">4</text>
+          <text x="372" y="78">5</text><text x="432" y="78">6</text><text x="492" y="78">7</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <p>Now the other way round. Drag the distance and watch the fare grow.</p>
+  <div class="interactive">
+    <svg class="plot" data-fn="3 + 2*x; 17" data-x="0,12" data-y="0,30" data-points="km, 3 + 2*km"></svg>
+    <div class="controls">
+      <label>Distance (km) <input type="range" data-var="km" min="0" max="12" step="0.5" value="2"> <output data-out="km"></output></label>
+      <span>Fare: <strong id="fare">$7</strong></span>
+    </div>
+  </div>
+  <p class="caption">Across: kilometres. Up: dollars. The rising line is the fare, the flat line is $17. Slide until the dot sits on the flat line.</p>
+  <div class="big-idea">To find the missing number, undo what happened to it, in reverse order: the last thing added comes off first.</div>
+  <p>Drawing works for a taxi. But what about messy numbers like 1.8 or 0.15? How do you write this down so it works for any numbers?</p>
+
+  <h2 id="names">What people call it</h2>
+  <p>You already did everything. Here are the names for what you saw.</p>
+  <table>
+    <tr><th>What you saw</th><th>What it's called</th></tr>
+    <tr><td>The distance nobody told you</td><td><strong>variable</strong> (usually written \( x \))</td></tr>
+    <tr><td>The sentence "fee plus kilometre money makes the receipt"</td><td><strong>equation</strong></td></tr>
+    <tr><td>Undoing step by step until only the missing number is left</td><td><strong>solving</strong> the equation</td></tr>
+  </table>
+  <p>So how do you write the taxi as an equation, and solve it with any numbers?</p>
+
+  <h2 id="how">Now with numbers</h2>
+  <p>Write the receipt sentence, with \( x \) for the distance:</p>
+  $$ 3 + 2x = 17 $$
+  <p>Read it out loud: three dollars, plus two dollars for each of \( x \) kilometres, makes seventeen.</p>
+  <p>Both sides are the same amount of money. So an equation is a balance: <mark>do the same thing to both sides, and it stays true.</mark></p>
+  <ol class="work">
+    <li>Take 3 away from both sides: \( 2x = 14 \) <span class="why">why: the fee was added last, so it comes off first. Doing it to both sides keeps the balance.</span></li>
+    <li>Divide both sides by 2: \( x = 7 \) <span class="why">why: \( 2x \) means "2 times \( x \)". Dividing by 2 undoes it.</span></li>
+    <li>Check: \( 3 + 2 \times 7 = 17 \) <span class="why">why: put the answer back in. If both sides match, it's right.</span></li>
+  </ol>
+  <div class="split">
+    <div class="callout bad"><strong>Wrong: one side only</strong>\( 3 + 2x = 17 \) becomes \( 2x = 17 \), so \( x = 8.5 \). The 3 left the left side, but the right side didn't change. The balance tipped.</div>
+    <div class="callout good"><strong>Right: both sides</strong>\( 3 + 2x - 3 = 17 - 3 \), so \( 2x = 14 \) and \( x = 7 \). Same change on each side, still balanced.</div>
+  </div>
+  <div class="callout warn"><strong>🪤 Classic trap</strong> Dividing first. If you divide by 2 first, you must divide <em>everything</em>, the 3 too: \( 1.5 + x = 8.5 \). People write \( 17 \div 2 - 3 = 5.5 \) instead. Take the plain number off first and the trap never opens.</div>
+  <p>Does "undo in reverse" work on equations from other places too?</p>
+
+  <h2 id="examples">Examples</h2>
+  <div class="example">
+    <header>Example 1: A download that's partly done <span class="level easy">easy</span></header>
+    <div class="body">
+      <p>A game update is 12 GB. 5 GB is already downloaded. How much is left? \( x + 5 = 12 \)</p>
+      <ol class="work">
+        <li>Take 5 away from both sides: \( x = 7 \) <span class="why">why: 5 was added to \( x \), so taking 5 away undoes it.</span></li>
+        <li>Check: \( 7 + 5 = 12 \) <span class="why">why: both sides match, so 7 GB is left.</span></li>
+      </ol>
+    </div>
+  </div>
+  <div class="example">
+    <header>Example 2: A draining phone battery <span class="level medium">medium</span></header>
+    <div class="body">
+      <p>Your phone was at 100% and loses 3% for each hour of video. It's at 64% now. How many hours? \( 100 - 3h = 64 \)</p>
+      <ol class="work">
+        <li>Take 100 away from both sides: \( -3h = -36 \) <span class="why">why: get the hours part alone on its side.</span></li>
+        <li>Divide both sides by \( -3 \): \( h = 12 \) <span class="why">why: undo "times \( -3 \)". A minus divided by a minus is a plus.</span></li>
+        <li>Check: \( 100 - 3 \times 12 = 64 \) <span class="why">why: 12 hours of video.</span></li>
+      </ol>
+    </div>
+  </div>
+  <div class="example">
+    <header>Example 3: Fahrenheit to Celsius <span class="level medium">medium</span></header>
+    <div class="body">
+      <p>A weather app shows 77 °F. Fahrenheit is 1.8 times Celsius, plus 32. What's that in Celsius? \( 1.8C + 32 = 77 \)</p>
+      <ol class="work">
+        <li>Take 32 away from both sides: \( 1.8C = 45 \) <span class="why">why: the 32 was added last, so it comes off first. Same move as the taxi fee.</span></li>
+        <li>Divide both sides by 1.8: \( C = 25 \) <span class="why">why: undo "times 1.8". Messy numbers change nothing about the method.</span></li>
+        <li>Check: \( 1.8 \times 25 + 32 = 77 \) <span class="why">why: 25 °C, a warm day.</span></li>
+      </ol>
+    </div>
+  </div>
+  <div class="example">
+    <header>Example 4: When do two phone plans cost the same? <span class="level hard">harder</span></header>
+    <div class="body">
+      <p>Plan A: $20 a month plus $0.10 a minute. Plan B: $5 a month plus $0.25 a minute. At how many minutes do they cost the same? \( 20 + 0.10m = 5 + 0.25m \)</p>
+      <ol class="work">
+        <li>Take 5 away from both sides: \( 15 + 0.10m = 0.25m \) <span class="why">why: gather the plain numbers on one side.</span></li>
+        <li>Take \( 0.10m \) away from both sides: \( 15 = 0.15m \) <span class="why">why: \( m \) is on both sides. Remove the smaller part, so \( m \) lives on one side only.</span></li>
+        <li>Divide both sides by 0.15: \( m = 100 \) <span class="why">why: undo "times 0.15".</span></li>
+        <li>Check: A costs \( 20 + 10 = 30 \), B costs \( 5 + 25 = 30 \) <span class="why">why: equal at 100 minutes. Talk more, and plan A is cheaper.</span></li>
+      </ol>
+    </div>
+  </div>
+  <p>Four different places, one method. So what about our taxi?</p>
+
+  <h2 id="solve">Solving the problem</h2>
+  <ol class="work">
+    <li>Write it down: \( 3 + 2x = 17 \) <span class="why">why: $3 fee, $2 per kilometre, $17 total.</span></li>
+    <li>Take the fee off both sides: \( 2x = 14 \) <span class="why">why: the last thing added comes off first.</span></li>
+    <li>Divide both sides by 2: \( x = 7 \) <span class="why">why: undo "2 times".</span></li>
+    <li>Check: \( 3 + 2 \times 7 = 17 \) <span class="why">why: it matches the receipt. You went 7 km.</span></li>
+  </ol>
+  <div class="callout good"><strong>🏅 You can now</strong> find the missing number whenever something is "a start amount, plus a rate times an amount, makes a total": fares, bills, batteries, temperatures.</div>
+  <p>Ready to try one on your own?</p>
+
+  <h2 id="your-turn">Your turn</h2>
+  <div class="q" data-id="l1-q1" data-answer="8|$8">
+    <p><span class="level guided">🔦 Guided</span> Same taxi, a new ride: $11. Take off the start fee first. How many dollars paid for kilometres?</p>
+    <input class="q-input" placeholder="dollars">
+    <details class="hint"><summary>🕯️ Hint</summary><p>The fee is $3. What's 11 take away 3?</p></details>
+    <p class="q-why">$8 of kilometre money, so \( 8 \div 2 = 4 \) km. Fee off first, then split into $2 pieces.</p>
+  </div>
+  <div class="q" data-id="l1-q2" data-answer="6|x=6">
+    <p><span class="level practice">🥋 Practice</span> Solve \( 4x + 6 = 30 \)</p>
+    <input class="q-input" placeholder="x = ?">
+    <details class="hint"><summary>🕯️ Hint</summary><p>Take 6 off both sides first.</p></details>
+    <p class="q-why">\( 4x = 24 \), so \( x = 6 \). Check: \( 4 \times 6 + 6 = 30 \).</p>
+  </div>
+  <div class="q" data-id="l1-q3" data-answer="b">
+    <p><span class="level practice">🥋 Practice</span> What's the best first step for \( 5x - 2 = 18 \)?</p>
+    <ul class="q-choices">
+      <li data-opt="a">Divide the \( 5x \) by 5</li>
+      <li data-opt="b">Add 2 to both sides</li>
+      <li data-opt="c">Take 18 off the left side</li>
+    </ul>
+    <p class="q-why">The "take away 2" happened last, so undo it first: add 2 to both sides. \( 5x = 20 \), so \( x = 4 \).</p>
+  </div>
+  <div class="runner" data-id="l1-c1" data-lang="js">
+    <p><span class="level real">🛰️ Real-world</span> The taxi app needs this as code. Write <code>solve(start, rate, total)</code> that returns the missing amount. For the taxi, <code>solve(3, 2, 17)</code> is 7.</p>
+    <textarea class="runner-code">function solve(start, rate, total) {
+  // undo the start, then undo the rate
+}</textarea>
+    <script type="application/json" class="runner-tests">[
+      {"call": "solve(3, 2, 17)", "expect": 7},
+      {"call": "solve(32, 1.8, 77)", "expect": 25},
+      {"call": "solve(100, -3, 64)", "expect": 12},
+      {"call": "solve(6, 4, 30)", "expect": 6}
+    ]</script>
+    <details class="hint"><summary>🕯️ Hint</summary><p>Same two steps as on paper: take <code>start</code> off the total, then divide by <code>rate</code>.</p></details>
+    <details class="solution"><summary>🗝️ Solution</summary><pre><code class="language-js">function solve(start, rate, total) {
+  return (total - start) / rate;
+}</code></pre><p>The brackets matter: take the start off first, then divide. Without them, only <code>start</code> would be divided: the classic trap, in code.</p></details>
+  </div>
+  <p>More in <a href="exercises.html#lesson-1">Exercises for lesson 1</a>, all the way up to the boss problems.</p>
+
+  <h2 id="cheat">Cheat card</h2>
+  <div class="cheat" id="cheat-1">
+    <h3>How do you find a missing number?</h3>
+    <ul>
+      <li>An equation is a balance: do the same thing to both sides and it stays true.</li>
+      <li>Undo in reverse order: the last thing done comes off first.</li>
+      <li>Usually: take the plain number off, then divide by the number in front of \( x \).</li>
+      <li>\( x \) on both sides? Take the smaller \( x \) part off both sides first.</li>
+      <li>Always check: put the answer back in.</li>
+    </ul>
+    <div class="formula">\( a + bx = c \;\Rightarrow\; x = \dfrac{c - a}{b} \)</div>
+  </div>
+
+  <h2 id="next">Next</h2>
+  <div class="next-nav">
+    <a href="exercises.html#lesson-1"><small>Practice now</small>🎲 Exercises</a>
+    <a href="comeback.html"><small>Next lesson</small>📜 Coming soon: ask /learn</a>
+  </div>
+  <p><strong>Best next resource:</strong> <a href="https://www.khanacademy.org/math/algebra">Khan Academy: Algebra 1</a>, short videos and lots of practice on exactly this idea.</p>
+  <p class="ask-claude">Stuck or curious? Ask Claude: <code>/learn Linear equations: &lt;your question&gt;</code></p>
+</main>
+<script>
+  // Fare readout next to the slider.
+  document.addEventListener("learn:vars", (e) => {
+    if (!("km" in e.detail.vars)) return;
+    const fare = 3 + 2 * e.detail.vars.km;
+    document.getElementById("fare").textContent = "$" + fare + (fare === 17 ? ", the receipt!" : "");
+  });
+</script>
+</body>
+</html>

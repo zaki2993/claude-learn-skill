@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Exercises · Linear equations</title>
+<script>try{var t=JSON.parse(localStorage.getItem("learn:theme"));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/vendor/katex/katex.min.css">
+<script defer src="../../assets/vendor/katex/katex.min.js"></script>
+<script defer src="../../assets/vendor/katex/contrib/auto-render.min.js"></script>
+<script defer src="../../assets/vendor/highlight/highlight.min.js"></script>
+<script defer src="../../assets/learn.js"></script>
+</head>
+<body data-topic="math/linear-equations">
+<main>
+  <nav class="crumbs"><a href="../../main.html">Library</a> › Math › Linear equations › Exercises</nav>
+  <h1>Linear equations: Exercises</h1>
+  <p class="subtitle">Guided problems teach you something new, then practice, real-world, and boss problems. Answers are checked instantly.</p>
+
+  <section id="lesson-1">
+    <h2>Lesson 1: How do you find a missing number?</h2>
+    <p><a href="01-lesson-find-the-missing-number.html">Open the lesson</a> · <a href="cheatsheet.html#cheat-1">Cheat card</a></p>
+
+    <h3>🔦 Guided discovery</h3>
+    <div class="q" data-id="l1-g1" data-answer="13|$13">
+      <p>Forwards first. The taxi charges $3 to start and $2 per kilometre. What does a 5 km ride cost?</p>
+      <input class="q-input" placeholder="dollars">
+      <details class="hint"><summary>🕯️ Hint</summary><p>5 pieces of $2, then add the fee.</p></details>
+      <p class="q-why"><strong>Notice:</strong> going forwards you multiply first, then add the fee. Every extra kilometre adds the same $2.</p>
+    </div>
+    <div class="q" data-id="l1-g2" data-answer="10|$10">
+      <p>Now backwards. A ride cost $13. Take off the $3 fee. How many dollars were for kilometres?</p>
+      <input class="q-input" placeholder="dollars">
+      <details class="hint"><summary>🕯️ Hint</summary><p>13 take away 3.</p></details>
+      <p class="q-why"><strong>Notice:</strong> $10 of kilometre money is 5 km, the same ride as the last question. Going backwards is the forward steps undone in reverse: fee off first, then divide.</p>
+    </div>
+
+    <h3>🥋 Practice</h3>
+    <div class="q" data-id="l1-p1" data-answer="14|x=14">
+      <p>Solve \( x + 9 = 23 \)</p>
+      <input class="q-input" placeholder="x = ?">
+      <details class="solution"><summary>🗝️ Full solution</summary><ol class="work">
+        <li>Take 9 off both sides: \( x = 14 \) <span class="why">why: undo the "+ 9".</span></li>
+        <li>Check: \( 14 + 9 = 23 \) <span class="why">why: both sides match.</span></li>
+      </ol></details>
+    </div>
+    <div class="q" data-id="l1-p2" data-answer="13|x=13">
+      <p>Solve \( 4x = 52 \)</p>
+      <input class="q-input" placeholder="x = ?">
+      <details class="solution"><summary>🗝️ Full solution</summary><ol class="work">
+        <li>Divide both sides by 4: \( x = 13 \) <span class="why">why: \( 4x \) is "4 times \( x \)", and dividing undoes it.</span></li>
+        <li>Check: \( 4 \times 13 = 52 \) <span class="why">why: both sides match.</span></li>
+      </ol></details>
+    </div>
+    <div class="q" data-id="l1-p3" data-answer="9|x=9">
+      <p>Solve \( 5x - 7 = 38 \)</p>
+      <input class="q-input" placeholder="x = ?">
+      <details class="solution"><summary>🗝️ Full solution</summary><ol class="work">
+        <li>Add 7 to both sides: \( 5x = 45 \) <span class="why">why: the "take away 7" happened last, so undo it first.</span></li>
+        <li>Divide both sides by 5: \( x = 9 \) <span class="why">why: undo "5 times".</span></li>
+        <li>Check: \( 5 \times 9 - 7 = 38 \) <span class="why">why: both sides match.</span></li>
+      </ol></details>
+    </div>
+
+    <h3>🛰️ Real-world</h3>
+    <div class="q" data-id="l1-r1" data-answer="10|10°C|C=10">
+      <p>A thermostat is set to 50 °F. Fahrenheit is 1.8 times Celsius, plus 32. What is that in Celsius?</p>
+      <input class="q-input" placeholder="°C">
+      <details class="hint"><summary>🕯️ Hint</summary><p>Write \( 1.8C + 32 = 50 \). Which number was added last?</p></details>
+      <details class="solution"><summary>🗝️ Full solution</summary><ol class="work">
+        <li>Write it: \( 1.8C + 32 = 50 \) <span class="why">why: Fahrenheit is what we know, Celsius is missing.</span></li>
+        <li>Take 32 off both sides: \( 1.8C = 18 \) <span class="why">why: 32 was added last.</span></li>
+        <li>Divide by 1.8: \( C = 10 \) <span class="why">why: undo "1.8 times". 10 °C, a cool room.</span></li>
+      </ol></details>
+    </div>
+    <div class="q" data-id="l1-r2" data-answer="18|18h">
+      <p>Your phone was at 100% and loses 4% each hour of map navigation. It's at 28% now. How many hours have you been navigating?</p>
+      <input class="q-input" placeholder="hours">
+      <details class="hint"><summary>🕯️ Hint</summary><p>\( 100 - 4h = 28 \). Get the \( h \) part alone first.</p></details>
+      <details class="solution"><summary>🗝️ Full solution</summary><ol class="work">
+        <li>Take 100 off both sides: \( -4h = -72 \) <span class="why">why: leave only the hours part on the left.</span></li>
+        <li>Divide by \( -4 \): \( h = 18 \) <span class="why">why: minus divided by minus is plus.</span></li>
+        <li>Check: \( 100 - 4 \times 18 = 28 \) <span class="why">why: both sides match.</span></li>
+      </ol></details>
+    </div>
+    <div class="q" data-id="l1-r3" data-answer="150|150gb">
+      <p>A cloud storage plan costs $12 a month plus $0.05 per GB. This month's bill is $19.50. How many GB are stored?</p>
+      <input class="q-input" placeholder="GB">
+      <details class="hint"><summary>🕯️ Hint</summary><p>Same shape as the taxi: a start amount plus a rate times the missing number.</p></details>
+      <details class="solution"><summary>🗝️ Full solution</summary><ol class="work">
+        <li>Write it: \( 12 + 0.05g = 19.50 \) <span class="why">why: $12 base, $0.05 for each GB.</span></li>
+        <li>Take 12 off both sides: \( 0.05g = 7.50 \) <span class="why">why: the base fee comes off first.</span></li>
+        <li>Divide by 0.05: \( g = 150 \) <span class="why">why: undo "0.05 times". 150 GB.</span></li>
+      </ol></details>
+    </div>
+
+    <h3>👾 Boss</h3>
+    <div class="q" data-id="l1-b1" data-answer="3|3months|m=3">
+      <p>Gym A: $30 to join, then $15 a month. Gym B: no joining fee, $25 a month. After how many months have you paid the same at both?</p>
+      <input class="q-input" placeholder="months">
+      <details class="hint"><summary>🕯️ Hint 1: where to start</summary><p>Write each gym's total after \( m \) months, and set them equal.</p></details>
+      <details class="hint"><summary>🕯️ Hint 2: the key move</summary><p>\( 30 + 15m = 25m \). The \( m \) is on both sides: take the smaller part, \( 15m \), off both sides.</p></details>
+      <details class="solution"><summary>🗝️ Full solution</summary><ol class="work">
+        <li>Set the totals equal: \( 30 + 15m = 25m \) <span class="why">why: "paid the same" means the two totals balance.</span></li>
+        <li>Take \( 15m \) off both sides: \( 30 = 10m \) <span class="why">why: now \( m \) is on one side only.</span></li>
+        <li>Divide by 10: \( m = 3 \) <span class="why">why: undo "10 times".</span></li>
+        <li>Check: A is \( 30 + 45 = 75 \), B is \( 3 \times 25 = 75 \) <span class="why">why: equal. After 3 months, gym A is cheaper.</span></li>
+      </ol></details>
+    </div>
+    <div class="q" data-id="l1-b2" data-answer="-40|x=-40|-40°">
+      <p>Is there a temperature where Celsius and Fahrenheit show the <em>same</em> number? Find it.</p>
+      <input class="q-input" placeholder="degrees">
+      <details class="hint"><summary>🕯️ Hint 1: where to start</summary><p>Fahrenheit is \( 1.8C + 32 \). You want Fahrenheit to equal Celsius. Call that number \( x \).</p></details>
+      <details class="hint"><summary>🕯️ Hint 2: the key move</summary><p>\( 1.8x + 32 = x \). Take \( x \) off both sides, then take 32 off both sides.</p></details>
+      <details class="solution"><summary>🗝️ Full solution</summary><ol class="work">
+        <li>Write it: \( 1.8x + 32 = x \) <span class="why">why: the same number on both scales.</span></li>
+        <li>Take \( x \) off both sides: \( 0.8x + 32 = 0 \) <span class="why">why: gather the \( x \) parts on one side.</span></li>
+        <li>Take 32 off both sides: \( 0.8x = -32 \) <span class="why">why: the plain number comes off next.</span></li>
+        <li>Divide by 0.8: \( x = -40 \) <span class="why">why: undo "0.8 times". At −40, both scales agree: very cold either way.</span></li>
+      </ol></details>
+    </div>
+    <div class="card">
+      <p><span class="level boss">📟 terminal boss</span> Write <code>breakEven(fixedA, rateA, fixedB, rateB)</code>: the amount where two plans cost the same (Example 4 and the gym boss, as code). Return <code>null</code> when they never meet.</p>
+      <pre class="cmd"><code>cd math/linear-equations/practice/01-break-even
+node test.js</code></pre>
+      <p><strong>Done when:</strong> it prints 🍀 for every test and ends with 🪩.</p>
+      <details class="solution"><summary>🗝️ Solution</summary><p>See <code>practice/01-break-even/solution.js</code>, but try first!</p></details>
+    </div>
+  </section>
+
+  <p class="ask-claude">Want more? <code>/learn more Linear equations problems</code> · Stuck? Ask Claude about the exercise.</p>
+</main>
+</body>
+</html>

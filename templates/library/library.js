@@ -1,9 +1,13 @@
 // Library catalogue. Read by main.html (the library home) and the sidebar on every page, search, and rust dots.
 // Claude keeps this file up to date. It is a .js file (not .json) so it loads from file:// without a server.
 window.LIBRARY = {
+  // Same as learn.json "libraryId". Saved answers are keyed by it, so never change it.
+  id: "{{LIBRARY_ID}}",
+  // Same as learn.json "reviewIntervalsDays": days between comeback reviews (feeds "Due for review").
+  reviewIntervalsDays: [1, 3, 7, 21],
   subjects: [
     // {
-    //   id: "math", title: "Math", emoji: "➗",
+    //   id: "math", title: "Math",
     //   topics: [
     //     {
     //       id: "linear-equations", title: "Linear equations",

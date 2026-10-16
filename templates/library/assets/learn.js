@@ -1,9 +1,14 @@
-/* learn.js: shared engine for every page in a /learn library.
+/* learn.js templateVersion: 2 (same as templates/library/learn.json; SKILL.md §1 upgrade check)
+ *
+ * learn.js: shared engine for every page in a /learn library.
  * No build step and no server needed; works when opened straight from disk (file://).
  *
  * Features (all opt-in by markup, see the skill's PAGES.md):
  *   theme toggle · visit tracking (rust dots) · quizzes · JS/Python code runners
  *   step-through explanations · sliders + function plots · copy buttons · KaTeX / highlight.js
+ *
+ * Storage keys are "<library id>:<path from the library root>", so moving or renaming the
+ * library folder keeps every solved answer and saved code. The id is window.LIBRARY.id (library.js).
  */
 (function () {
   "use strict";
@@ -29,8 +34,11 @@
     for (const kid of kids) node.append(kid);
     return node;
   }
-  const today = () => new Date().toISOString().slice(0, 10);
-  const pageKey = () => decodeURIComponent(location.pathname).replace(/\\/g, "/");
+  // Local date (not UTC), so a late-night session counts for today.
+  const today = () => {
+    const d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  };
 
   // ---------- where am I? ----------
   // Library root, relative to this page: "../../" for topic pages, "" for the home page.
@@ -38,6 +46,20 @@
   const ROOT = SCRIPT ? (SCRIPT.getAttribute("src") || "").replace(/assets\/learn\.js.*$/, "") : "";
   const FILE = decodeURIComponent(location.pathname.split("/").pop() || "main.html");
   const IS_LESSON = /-lesson-/.test(FILE) || FILE === "comeback.html";
+
+  // ---------- storage keys ----------
+  const ABS_PATH = decodeURIComponent(location.pathname).replace(/\\/g, "/");
+  const REL_PATH = ABS_PATH.split("/").slice(-((ROOT.match(/\.\.\//g) || []).length + 1)).join("/");
+  let LIB_ID = "lib"; // replaced by window.LIBRARY.id once library.js has loaded
+  const pageKey = (rel) => LIB_ID + ":" + (rel || REL_PATH);
+  // Before keys were relative, they used the absolute path. Copy an old value over once.
+  function migrateKey(newKey, oldKey) {
+    try {
+      if (localStorage.getItem(newKey) === null && localStorage.getItem(oldKey) !== null) {
+        localStorage.setItem(newKey, localStorage.getItem(oldKey));
+      }
+    } catch (e) { /* private mode */ }
+  }
 
   function loadLibrary() {
     if (window.LIBRARY) return Promise.resolve(window.LIBRARY);
@@ -75,17 +97,16 @@
   function initChapters() {
     const main = document.querySelector("main");
     if (!main) return [];
-    // Old pages put emoji in front of headings, breadcrumbs and meta: drop them.
-    $$(".crumbs a, .crumbs, .pill, h1, h3, summary, .callout > strong:first-child", main).forEach((n) => {
+    // No emoji in titles, breadcrumbs or core chapters (PAGES.md#emoji): drop them there.
+    // Labels, summaries, callouts and "Going deeper" chapters (h2.deep) keep theirs.
+    const strip = (n) => {
       const first = n.firstChild;
       if (first && first.nodeType === 3) first.textContent = stripIcon(first.textContent);
-    });
+    };
+    $$(".crumbs a, .crumbs, h1", main).forEach(strip);
     if (document.body.classList.contains("home")) return [];
     const heads = $$("h2", main);
-    heads.forEach((h) => {
-      const first = h.firstChild;
-      if (first && first.nodeType === 3) first.textContent = stripIcon(first.textContent);
-    });
+    heads.filter((h) => !h.classList.contains("deep")).forEach(strip);
     return heads.map((h, i) => {
       if (!h.id) h.id = "ch-" + (i + 1);
       const num = String(i + 1).padStart(2, "0");
@@ -105,7 +126,7 @@
       const b = ROOT + s.id + "/" + t.id + "/";
       searchIndex.push({ title: t.title, where: s.title + " · topic", href: b + "comeback.html", text: [t.title, t.summary, (t.tags || []).join(" ")].join(" ") });
       (t.lessons || []).forEach((l) => searchIndex.push({ title: l.title, where: t.title + " · lesson " + l.n, href: b + l.file, text: [l.title, l.summary, (l.tags || []).join(" ")].join(" ") }));
-      (t.keypoints || []).forEach((k) => searchIndex.push({ title: k, where: t.title + " · key point", href: b + "cheatsheet.html", text: k }));
+      (t.keypoints || []).forEach((k, i) => searchIndex.push({ title: k, where: t.title + " · key point", href: b + "comeback.html#kp-" + (i + 1), text: k }));
     }));
   }
   function search(query) {
@@ -146,7 +167,7 @@
       chapterLinks = chapters.map((c) => {
         if (!deepShown && c.h.classList.contains("deep")) {
           deepShown = true;
-          list.append(el("li", { class: "sb-deeper", text: "Going deeper" }));
+          list.append(el("li", { class: "sb-deeper", text: "🤿 Going deeper" }));
         }
         const a = el("a", { href: "#" + c.h.id }, el("span", { text: c.num }), el("span", { text: c.title }));
         a.addEventListener("click", () => document.body.classList.remove("nav-open"));
@@ -158,7 +179,8 @@
 
     // Progress (filled by initProgress)
     const progress = el("div", { class: "sb-progress", hidden: "" });
-    side.append(progress, treeWrap, el("div", { class: "sb-foot" }, themeButton()));
+    const share = el("div", { class: "sb-share", hidden: "" });
+    side.append(progress, share, treeWrap, el("div", { class: "sb-foot" }, themeButton()));
 
     // Mobile top bar
     const menuBtn = el("button", { type: "button", "aria-label": "Open navigation", text: "Menu" });
@@ -214,7 +236,7 @@
       spy();
     }
 
-    sidebarParts = { tree, progress, tbFill };
+    sidebarParts = { tree, progress, share, tbFill };
   }
 
   function fillTree(lib) {
@@ -233,11 +255,11 @@
           if (isHere && FILE === file) { a.classList.add("here"); a.setAttribute("aria-current", "page"); }
           pages.append(el("li", {}, a));
         };
-        (t.lessons || []).forEach((l) => link(l.file, l.n + ". " + l.title));
+        (t.lessons || []).forEach((l) => link(l.file, "📜 " + l.n + ". " + l.title));
         pages.append(el("li", { class: "sb-sep", "aria-hidden": "true" }));
-        link("exercises.html", "Exercises");
-        link("comeback.html", "Comeback review");
-        link("cheatsheet.html", "Cheatsheet");
+        link("exercises.html", "🎲 Exercises");
+        link("comeback.html", "🪃 Comeback review");
+        link("cheatsheet.html", "🧾 Cheatsheet");
         const d = el("details", { class: "sb-topic" }, el("summary", { text: t.title }), pages);
         if (isHere) d.open = true;
         topics.append(el("li", {}, d));
@@ -249,13 +271,137 @@
     if (!tree.children.length) tree.append(el("li", { class: "empty", text: "Nothing yet. Run /learn <topic>." }));
   }
 
-  // ---------- visits (feeds the rust dots on the home page) ----------
+  // ---------- visits (feeds the rust dots and "Due for review" on the home page) ----------
   function recordVisit() {
     const topic = document.body.dataset.topic;
     if (!topic) return;
     const visits = store.get("learn:visits", {});
     visits[topic] = today();
     store.set("learn:visits", visits);
+    if (FILE === "comeback.html") {
+      // One comeback per day at most: { "<subject>/<topic>": { n, last } }
+      const key = "learn:comebacks:" + LIB_ID;
+      const cbs = store.get(key, {});
+      const cb = cbs[topic] || { n: 0, last: "" };
+      if (cb.last !== today()) { cb.n++; cb.last = today(); }
+      cbs[topic] = cb;
+      store.set(key, cbs);
+    }
+  }
+
+  // ---------- attempts: what Claude can't see (tries, hints, solutions, reveals) ----------
+  // learn:attempts:<page key> → { <data-id>: { kind, text, tries, wrong, hints, solutions, revealed, solved, firstTry, date } }
+  const attemptsKey = (rel) => "learn:attempts:" + pageKey(rel);
+  // The question's first line as plain text, with math back as its TeX source.
+  function snippet(item) {
+    const p = item.querySelector("p");
+    if (!p) return "";
+    const c = p.cloneNode(true);
+    c.querySelectorAll(".level").forEach((n) => n.remove());
+    c.querySelectorAll(".katex").forEach((k) => {
+      const tex = k.querySelector('annotation[encoding="application/x-tex"]');
+      k.replaceWith(tex ? tex.textContent : k.textContent);
+    });
+    return c.textContent.replace(/\s+/g, " ").trim().slice(0, 90);
+  }
+  function noteAttempt(item, change) {
+    const all = store.get(attemptsKey(), {});
+    const id = item.dataset.id;
+    const a = all[id] || { kind: item.classList.contains("runner") ? "runner" : "q", text: snippet(item), tries: 0, wrong: 0, hints: 0, solutions: 0 };
+    change(a);
+    a.date = today();
+    all[id] = a;
+    store.set(attemptsKey(), all);
+    return a;
+  }
+  const attemptOf = (item) => store.get(attemptsKey(), {})[item.dataset.id] || null;
+  // Count each hint / solution once per page view.
+  function watchHelp(item) {
+    $$("details", item).forEach((d) => {
+      let seen = false;
+      d.addEventListener("toggle", () => {
+        if (!d.open || seen) return;
+        seen = true;
+        const sol = d.classList.contains("solution");
+        noteAttempt(item, (a) => { if (sol) a.solutions++; else a.hints++; });
+      });
+    });
+  }
+  function recordResult(item, ok) {
+    return noteAttempt(item, (a) => {
+      if (a.solved) return; // already solved: practice runs don't change the record
+      a.tries++;
+      if (ok) { a.solved = today(); a.firstTry = a.tries === 1 && !a.hints && !a.solutions; }
+      else a.wrong++;
+    });
+  }
+
+  // ---------- "Copy my progress for Claude" ----------
+  function progressSummary(topic) {
+    const pages = {};
+    const kinds = { "learn:attempts:": "attempts", "learn:solved:": "solved" };
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        Object.keys(kinds).forEach((pre) => {
+          const p = pre + LIB_ID + ":" + topic + "/";
+          if (!k.startsWith(p)) return;
+          const file = k.slice(p.length);
+          pages[file] = pages[file] || { attempts: {}, solved: {} };
+          pages[file][kinds[pre]] = store.get(k, {});
+        });
+      }
+    } catch (e) { /* storage blocked */ }
+    const files = Object.keys(pages).sort();
+    const solvedBy = files.map((f) => [f, Object.keys(pages[f].solved).length]).filter((x) => x[1]);
+    const total = solvedBy.reduce((n, x) => n + x[1], 0);
+    const rows = [];
+    files.forEach((f) => Object.entries(pages[f].attempts).forEach(([id, a]) => rows.push(Object.assign({ file: f, id }, a))));
+    const name = (r) => r.file.replace(/\.html$/, "") + " " + r.id + (r.text ? ': "' + r.text + '"' : "");
+    const list = (title, items, extra) => {
+      if (!items.length) return [];
+      const out = [title + ":"].concat(items.slice(0, 12).map((r) => "- " + name(r) + (extra ? " (" + extra(r) + ")" : "")));
+      if (items.length > 12) out.push("- +" + (items.length - 12) + " more");
+      return out;
+    };
+    return [
+      "/learn progress summary: " + topic + " (" + today() + ")",
+      "Solved: " + total + (total === 1 ? " question" : " questions") + (solvedBy.length ? " (" + solvedBy.map((x) => x[0].replace(/\.html$/, "") + " " + x[1]).join(", ") + ")" : ""),
+      "First try: " + rows.filter((r) => r.firstTry).length,
+    ].concat(
+      list("Took 3+ tries", rows.filter((r) => r.kind === "q" && r.tries >= 3), (r) => r.tries + " tries, " + (r.solved ? "solved" : r.revealed ? "answer revealed" : "not solved")),
+      list("Answer revealed, not solved", rows.filter((r) => r.revealed && !r.solved)),
+      list("Hints opened", rows.filter((r) => r.hints), (r) => r.hints + "x"),
+      list("Solutions opened", rows.filter((r) => r.solutions)),
+      list("Code that never passed", rows.filter((r) => r.kind === "runner" && r.tries && !r.solved), (r) => r.tries + " runs"),
+    ).join("\n");
+  }
+  function copyText(text) {
+    const fallback = () => {
+      const ta = el("textarea", { style: "position:fixed;opacity:0" });
+      ta.value = text;
+      document.body.append(ta);
+      ta.select();
+      let done = false;
+      try { done = document.execCommand("copy"); } catch (e) { /* not allowed */ }
+      ta.remove();
+      if (!done) window.prompt("Copy this, then paste it to Claude:", text);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text).catch(fallback);
+    fallback();
+    return Promise.resolve();
+  }
+  function initShare() {
+    const topic = document.body.dataset.topic;
+    if (!topic || !sidebarParts) return;
+    const box = sidebarParts.share;
+    const btn = el("button", { type: "button", class: "ghost", text: "Copy my progress for Claude" });
+    btn.addEventListener("click", () => copyText(progressSummary(topic)).then(() => {
+      btn.textContent = "Copied ✓ Paste it to Claude";
+      setTimeout(() => { btn.textContent = "Copy my progress for Claude"; }, 2000);
+    }));
+    box.append(btn, el("p", { text: "What was hard on this topic, so Claude can target it next time." }));
+    box.hidden = false;
   }
 
   // ---------- solved tracking + progress ----------
@@ -270,6 +416,8 @@
   let progressUI = null;
   function initProgress() {
     const items = $$(".q, .runner");
+    // The home page counts "N / M solved" per topic from this list.
+    if (document.body.dataset.topic) store.set("learn:items:" + pageKey(), items.map((n) => n.dataset.id));
     if (items.length < 2 || !sidebarParts) return;
     const box = sidebarParts.progress;
     const label = el("div");
@@ -287,7 +435,7 @@
     if (!progressUI) return;
     const done = $$(".q, .runner").filter((n) => isSolved(n.dataset.id)).length;
     const pct = (100 * done / progressUI.total) + "%";
-    progressUI.label.innerHTML = "<b>" + done + " / " + progressUI.total + "</b> solved" + (done === progressUI.total ? ". All done!" : "");
+    progressUI.label.innerHTML = "<b>" + done + " / " + progressUI.total + "</b> solved" + (done === progressUI.total ? ". 🪩 All done!" : "");
     progressUI.fill.style.width = pct;
     sidebarParts.tbFill.style.width = pct;
   }
@@ -317,13 +465,29 @@
       q.dataset.id = q.dataset.id || "q" + (i + 1);
       const accepted = q.dataset.answer || "";
       const feedback = el("div", { class: "q-feedback", "aria-live": "polite" });
+      // After 3 wrong tries, offer the answer. That counts as "revealed", not solved.
+      const reveal = el("button", { type: "button", class: "ghost q-reveal", text: "🗝️ Show answer", hidden: "" });
       const done = (ok) => {
         q.classList.toggle("correct", ok);
         q.classList.toggle("wrong", !ok);
         feedback.className = "q-feedback " + (ok ? "ok" : "no");
-        feedback.textContent = ok ? "Correct." : "Not yet. Try again, or open a hint.";
-        if (ok) markSolved(q.dataset.id);
+        feedback.textContent = ok ? "🍀 Correct." : "🌀 Not yet. Try again, or open a hint.";
+        const a = recordResult(q, ok);
+        if (ok) { markSolved(q.dataset.id); reveal.hidden = true; }
+        else if (a.wrong >= 3 && !a.solved && !q.classList.contains("revealed")) reveal.hidden = false;
       };
+      const firstAnswer = () => {
+        const first = accepted.split("|")[0].trim();
+        const opt = q.querySelector('.q-choices li[data-opt="' + first + '"]');
+        return opt ? first + ") " + opt.textContent.trim() : first;
+      };
+      reveal.addEventListener("click", () => {
+        q.classList.add("revealed");
+        reveal.hidden = true;
+        feedback.className = "q-feedback";
+        feedback.textContent = "🗝️ Answer: " + firstAnswer();
+        noteAttempt(q, (a) => { a.revealed = true; });
+      });
 
       const choices = q.querySelector(".q-choices");
       if (choices) {
@@ -354,9 +518,13 @@
         row.after(feedback);
       }
 
+      feedback.after(reveal);
       const why = q.querySelector(".q-why");
-      if (why) feedback.after(why);
-      if (isSolved(q.dataset.id)) { q.classList.add("correct"); feedback.className = "q-feedback ok"; feedback.textContent = "Solved before."; }
+      if (why) reveal.after(why);
+      watchHelp(q);
+      const past = attemptOf(q);
+      if (isSolved(q.dataset.id)) { q.classList.add("correct"); feedback.className = "q-feedback ok"; feedback.textContent = "🍀 Solved before."; }
+      else if (past && past.wrong >= 3) reveal.hidden = false;
     });
   }
 
@@ -372,7 +540,63 @@
   }
   const show = (v) => { try { return JSON.stringify(v); } catch (e) { return String(v); } };
 
+  // User code runs in a Web Worker made from a Blob URL (works from file://), so an endless
+  // loop can be stopped after RUN_LIMIT_MS instead of freezing the page.
+  const RUN_LIMIT_MS = 3000;
+  const STOPPED = "Stopped after " + RUN_LIMIT_MS / 1000 + " s: is there an endless loop?";
+  const blobURL = (src) => URL.createObjectURL(new Blob([src], { type: "text/javascript" }));
+  // A result crosses from the worker as JSON text: { ok, json } or { ok: false, error }.
+  const unpack = (r) => (r.ok ? { ok: true, value: r.json === undefined ? undefined : JSON.parse(r.json) } : r);
+
+  const JS_WORKER = `
+self.onmessage = (e) => {
+  const { code, tests } = e.data;
+  let n = 0;
+  const fmt = (args) => args.map((a) => { if (typeof a === "string") return a; try { return JSON.stringify(a); } catch (x) { return String(a); } }).join(" ");
+  const log = (...a) => { if (n++ < 500) self.postMessage({ log: fmt(a) }); };
+  const fakeConsole = { log, error: log, warn: log, info: log };
+  const pack = (v) => { let json; try { json = JSON.stringify(v); } catch (x) { json = JSON.stringify(String(v)); } return { ok: true, json }; };
+  const probes = tests.map((t) => "(() => { try { return __pack(" + t.call + "); } catch (e) { return { ok: false, error: String(e) }; } })()");
+  try {
+    const results = new Function("console", "__pack", code + "\\n;return [" + probes.join(",") + "];")(fakeConsole, pack);
+    self.postMessage({ done: true, results });
+  } catch (err) {
+    self.postMessage({ done: true, error: String(err) });
+  }
+};`;
+  let jsWorkerURL = null;
+
   function runJS(code, tests) {
+    return new Promise((resolve) => {
+      let worker;
+      try {
+        jsWorkerURL = jsWorkerURL || blobURL(JS_WORKER);
+        worker = new Worker(jsWorkerURL);
+      } catch (e) {
+        resolve(runJSInline(code, tests));
+        return;
+      }
+      const logs = [];
+      let heard = false;
+      const finish = (res) => { clearTimeout(timer); worker.terminate(); resolve(Object.assign({ logs }, res)); };
+      const timer = setTimeout(() => finish({ error: STOPPED }), RUN_LIMIT_MS);
+      worker.onmessage = (e) => {
+        heard = true;
+        if (e.data.log !== undefined) { logs.push(e.data.log); return; }
+        finish(e.data.error ? { error: e.data.error } : { results: e.data.results.map(unpack) });
+      };
+      worker.onerror = (e) => {
+        e.preventDefault();
+        if (heard) return finish({ error: e.message || "Error" });
+        // The worker itself could not start (a browser that blocks workers here): run inline.
+        clearTimeout(timer); worker.terminate(); resolve(runJSInline(code, tests));
+      };
+      worker.postMessage({ code, tests });
+    });
+  }
+
+  // Fallback without a worker: same thing on the main thread (no endless-loop protection).
+  function runJSInline(code, tests) {
     const logs = [];
     const fmt = (args) => args.map((a) => (typeof a === "string" ? a : show(a))).join(" ");
     const fakeConsole = { log: (...a) => logs.push(fmt(a)), error: (...a) => logs.push(fmt(a)), warn: (...a) => logs.push(fmt(a)) };
@@ -386,11 +610,80 @@
     }
   }
 
+  // Python: Pyodide in a worker that stays loaded between runs. On a timeout the worker is
+  // stopped and the next run loads a fresh one.
+  const PYODIDE = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/";
+  const PY_WORKER = `
+importScripts("${PYODIDE}pyodide.js");
+const ready = loadPyodide({ indexURL: "${PYODIDE}" });
+ready.then(() => self.postMessage({ ready: true }), (e) => self.postMessage({ loadError: String((e && e.message) || e) }));
+self.onmessage = async (e) => {
+  const py = await ready;
+  const { code, tests } = e.data;
+  const last = (err) => String(err.message || err).trim().split("\\n").slice(-1)[0];
+  py.setStdout({ batched: (s) => self.postMessage({ log: s }) });
+  py.setStderr({ batched: (s) => self.postMessage({ log: s }) });
+  const ns = py.globals.get("dict")();
+  try {
+    py.runPython(code, { globals: ns });
+  } catch (err) {
+    ns.destroy();
+    self.postMessage({ done: true, error: last(err) });
+    return;
+  }
+  const results = tests.map((t) => {
+    try { return { ok: true, json: py.runPython("__import__('json').dumps(" + t.call + ")", { globals: ns }) }; }
+    catch (err) { return { ok: false, error: last(err) }; }
+  });
+  ns.destroy();
+  self.postMessage({ done: true, results });
+};`;
+  let pyWorkerReady = null, pyLoaded = false, pyInline = false;
+  function pyWorker() {
+    if (!pyWorkerReady) {
+      pyWorkerReady = new Promise((resolve, reject) => {
+        let w;
+        try { w = new Worker(blobURL(PY_WORKER)); } catch (e) { pyInline = true; reject(e); return; }
+        w.onmessage = (e) => {
+          if (e.data.ready) { pyLoaded = true; resolve(w); }
+          else if (e.data.loadError) { w.terminate(); reject(new Error("Could not load Python (needs internet the first time).")); }
+        };
+        // importScripts failed: offline, or a browser that blocks workers here. Try the main thread next.
+        w.onerror = (e) => { e.preventDefault(); w.terminate(); pyInline = true; reject(new Error("worker")); };
+      });
+      pyWorkerReady.catch(() => { pyWorkerReady = null; });
+    }
+    return pyWorkerReady;
+  }
+  async function runPython(code, tests) {
+    if (pyInline) return runPythonInline(code, tests);
+    let w;
+    try { w = await pyWorker(); } catch (e) {
+      if (pyInline) return runPythonInline(code, tests);
+      throw e;
+    }
+    return new Promise((resolve) => {
+      const logs = [];
+      const finish = (res) => { clearTimeout(timer); resolve(Object.assign({ logs }, res)); };
+      const timer = setTimeout(() => {
+        w.terminate(); pyWorkerReady = null; pyLoaded = false;
+        finish({ error: STOPPED + " (Python reloads on the next run.)" });
+      }, RUN_LIMIT_MS);
+      w.onmessage = (e) => {
+        if (e.data.log !== undefined) { logs.push(e.data.log); return; }
+        finish(e.data.error ? { error: e.data.error } : { results: e.data.results.map(unpack) });
+      };
+      w.onerror = (e) => { e.preventDefault(); finish({ error: e.message || "Error" }); };
+      w.postMessage({ code, tests });
+    });
+  }
+
+  // Fallback without a worker: Pyodide on the main thread (no endless-loop protection).
   let pyodideReady = null;
   function loadPyodide() {
     if (!pyodideReady) {
       pyodideReady = new Promise((resolve, reject) => {
-        const s = el("script", { src: "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js" });
+        const s = el("script", { src: PYODIDE + "pyodide.js" });
         s.onload = () => window.loadPyodide().then(resolve, reject);
         s.onerror = () => reject(new Error("Could not load Python (needs internet the first time)."));
         document.head.append(s);
@@ -398,7 +691,7 @@
     }
     return pyodideReady;
   }
-  async function runPython(code, tests) {
+  async function runPythonInline(code, tests) {
     const py = await loadPyodide();
     const logs = [];
     py.setStdout({ batched: (s) => logs.push(s) });
@@ -429,6 +722,7 @@
       const tests = testsTag ? JSON.parse(testsTag.textContent) : [];
       const starter = area.value;
       const saveKey = "learn:code:" + pageKey() + ":" + box.dataset.id;
+      migrateKey(saveKey, "learn:code:" + ABS_PATH + ":" + box.dataset.id);
       const saved = store.get(saveKey, null);
       if (saved !== null) area.value = saved;
       area.spellcheck = false;
@@ -448,30 +742,31 @@
         let res;
         try {
           if (lang === "py" || lang === "python") {
-            if (!pyodideReady) line("log", "⏳ Loading Python (first run takes a few seconds)…");
+            if (!pyLoaded && !pyodideReady) line("log", "📟 Loading Python (first run takes a few seconds)…");
             res = await runPython(area.value, tests);
             out.textContent = "";
           } else {
-            res = runJS(area.value, tests);
+            res = await runJS(area.value, tests);
           }
         } catch (e) {
           res = { logs: [], error: String(e.message || e) };
         }
         runBtn.disabled = false;
         res.logs.forEach((l) => line("log", l.replace(/\n$/, "")));
-        if (res.error) { line("fail", "💥 " + res.error); box.classList.remove("correct"); return; }
+        if (res.error) { line("fail", "🧨 " + res.error); box.classList.remove("correct"); recordResult(box, false); return; }
         let passed = 0;
         tests.forEach((t, k) => {
           const r = res.results[k];
           const ok = r.ok && deepEqual(r.value, t.expect);
           if (ok) passed++;
-          line(ok ? "pass" : "fail", (ok ? "✅ " : "❌ ") + t.call + " → " +
+          line(ok ? "pass" : "fail", (ok ? "🍀 " : "🌀 ") + t.call + " → " +
             (r.ok ? show(r.value) : "error: " + r.error) + (ok ? "" : "   (expected " + show(t.expect) + ")"));
         });
         if (tests.length) {
           const all = passed === tests.length;
-          line(all ? "pass" : "fail", all ? "\n🎉 All " + passed + " tests pass!" : "\n" + passed + " / " + tests.length + " tests pass. Keep going.");
+          line(all ? "pass" : "fail", all ? "\n🪩 All " + passed + " tests pass!" : "\n" + passed + " / " + tests.length + " tests pass. Keep going.");
           box.classList.toggle("correct", all);
+          recordResult(box, all);
           if (all) markSolved(box.dataset.id);
         }
       }
@@ -485,6 +780,7 @@
           area.setRangeText("  ", s, en, "end");
         }
       });
+      watchHelp(box);
       if (isSolved(box.dataset.id)) box.classList.add("correct");
     });
   }
@@ -622,7 +918,7 @@
   }
 
   // Public API for page-specific scripts.
-  window.Learn = { store, el, answerMatches, markSolved, drawPlot, search, root: ROOT };
+  window.Learn = { store, el, answerMatches, markSolved, drawPlot, search, root: ROOT, pageKey, today, progressSummary };
 
   // Pages made before main.html existed link to index.html: point them at main.html.
   function fixHomeLinks() {
@@ -634,15 +930,23 @@
     const chapters = initChapters();
     if (document.body.classList.contains("home")) document.body.append(themeButton());
     else buildShell(chapters);
-    recordVisit();
     initLibs();
-    initQuizzes();
-    initRunners();
     initSteps();
     initInteractive();
     initCopy();
-    initProgress();
-    loadLibrary().then((lib) => { buildIndex(lib); fillTree(lib); });
+    // Saved answers are keyed by the library id, so wait for library.js (a local file: instant).
+    loadLibrary().then((lib) => {
+      if (lib.id) LIB_ID = String(lib.id);
+      migrateKey(solvedKey(), "learn:solved:" + ABS_PATH);
+      recordVisit();
+      initQuizzes();
+      initRunners();
+      initProgress();
+      initShare();
+      buildIndex(lib);
+      fillTree(lib);
+      document.dispatchEvent(new CustomEvent("learn:ready", { detail: { library: lib } }));
+    });
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();

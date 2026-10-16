@@ -6,10 +6,59 @@ All pages live in `<library>/<subject>/<topic>/`, link `../../assets/style.css` 
 
 The design is set by `style.css`: a study notebook, with cool paper, ink blue, and a yellow highlighter. `learn.js` builds the **sidebar** on every page automatically: search (Ctrl K), the library tree with "you are here", the numbered chapters of the page (from its `<h2>`s, filled in as you scroll), and progress. It also adds the big chapter numbers on lesson and comeback pages. So:
 
-- **No emoji or icons in headings, labels, buttons, or summaries.** Chapter numbers do that job. (Emoji are fine inside example content when the content is about emoji.)
+- **Emoji: only the set below** (see [Emoji](#emoji)).
 - **No hand-written table of contents, chapter numbers, or progress bars.** They're automatic.
 - Each `<h2>` is a chapter: give it a short plain title ("How it works", "Under the hood") and an `id`.
-- **Don't add per-page CSS** unless a diagram truly needs it. If something reusable is missing, add it to `assets/style.css` / `assets/learn.js` in the library *and* in this skill's `templates/library/assets/`.
+- **Don't add per-page CSS** unless a diagram truly needs it. If something reusable is missing, add it to `assets/style.css` / `assets/learn.js` in the library *and* in this skill's `templates/library/assets/`. That changes this skill's git repo, so tell the user and commit it (bump `templateVersion` in `templates/library/learn.json` and the first line of `learn.js`, so other libraries pick it up).
+
+## Emoji
+
+The user likes emoji, but not the generic ones every chatbot uses. So there is one fixed set. Each emoji means one thing, everywhere: pages, chat, runner output, test files.
+
+**Banned everywhere (too generic):** ✅ 🎉 🚀 💡 🔥 ✨ 👉 📚 🎯 💪 🧠 📌 ⚡ 📘 🔬 🔍 🟢 🟡 🔴 ✍️ 💻 🙌 👀 📝 🤔 ⚠️ 🐛
+
+**The set** (one emoji per label, never stacked, nothing outside this table):
+
+| Thing | Emoji | Why it fits |
+|---|---|---|
+| Depth: Quick (~5 min) | 🪁 | light, quick |
+| Depth: Normal (~15 min) | 🧭 | find your way |
+| Depth: Deep (~40 min) | 🤿 | dives *down*: depth means going further down |
+| Depth: Master (multi-part) | 🐉 | the big one |
+| Exercise tier: Guided discovery | 🔦 | discovering in the dark |
+| Exercise tier: Practice | 🥋 | dojo reps |
+| Exercise tier: Real-world | 🛰️ | out in the field |
+| Exercise tier: Boss | 👾 | game boss |
+| Lesson page | 📜 | |
+| Exercises page | 🎲 | |
+| Comeback / review page | 🪃 | it comes back |
+| Cheatsheet | 🧾 | compact receipt |
+| Terminal practice task | 📟 | |
+| Capstone | 🏔️ | |
+| Hint | 🕯️ | a little light |
+| Full solution | 🗝️ | |
+| Correct answer | 🍀 | |
+| Not yet / try again | 🌀 | |
+| All tests pass / all solved | 🪩 | |
+| Runtime error in a runner | 🧨 | |
+| Classic trap callout | 🪤 | |
+| "You can now" win callout | 🏅 | |
+| Next step (in chat) | 🛤️ | |
+| Going deeper: Under the hood | 🔩 | |
+| Going deeper: Edge cases | 🧗 | |
+| Going deeper: Common mistakes | 🪤 | |
+| Going deeper: Debugging it | 🪲 | |
+| Going deeper: Connections | 🕸️ | |
+| Going deeper: Why it's designed this way | 📐 | |
+| Going deeper: Expert level | 🥷 | |
+| Rusty topic (chat overview) | 🦴 | |
+| Fresh topic (chat overview) | 🌱 | |
+
+**Where emoji go:** chat replies (the SKILL.md §8 card, the first-run card, the overview), the depth question options, exercise tier labels (`.level` tags and the tier `<h3>`s), callout titles, hint and solution `<summary>`s, the depth pill, depth section `<h2>`s (the emoji comes first in the source; the chapter number is added in front of it), and the "Going deeper" divider. `learn.js` adds them to quiz feedback, runner output, sidebar page links and the "Going deeper" sidebar group.
+
+**Where they don't:** `<h1>` titles, core chapter `<h2>`s (the big chapter numbers already do that job), breadcrumbs, body text. Exception: body text that is *about* emoji.
+
+`learn.js` strips leading emoji from `<h1>`, breadcrumbs and core `<h2>`s, so a slip there is harmless. Everywhere else it leaves them alone.
 
 ## Writing style
 
@@ -18,7 +67,7 @@ The design is set by `style.css`: a study notebook, with cool paper, ink blue, a
 - Start sections with a concrete thing (a number, a line of code, a picture), then the explanation.
 - Every step in a solution: **what** you do + `<span class="why">why: ...</span>`.
 - Name things consistently. Once a term is in the glossary, always use it the same way.
-- Math: `\( x^2 \)` inline, `$$ ... $$` or `\[ ... \]` for display (KaTeX). Don't use single `$`. Write it so it still reads OK as raw text if KaTeX doesn't load (offline).
+- Math: `\( x^2 \)` inline, `$$ ... $$` or `\[ ... \]` for display (KaTeX). Don't use single `$`. KaTeX ships in `assets/vendor/`, so it works offline. Still write math that reads OK as raw text.
 - Code: `<pre><code class="language-js">`. Escape `<`, `>`, `&` inside HTML.
 
 ## Layout: vary it
@@ -37,11 +86,11 @@ Plain paragraphs between components are good: they give the eye a rest. Aim for 
 | Side by side | `<div class="split"><div>...</div><div>...</div></div>`: wrong vs right, before vs after, two approaches. Stacks on mobile. |
 | Margin note | `<p class="side-note">...</p>`: an aside (history, fun fact, "you'll see this again in..."). Goes into the right margin on wide screens. |
 | One-sentence big idea | `<div class="big-idea">...</div>` |
-| Callout | `<div class="callout"><strong>Short title</strong> text</div>` · `.good` (win) · `.warn` (trap) · `.bad` (wrong way). The first `<strong>` becomes the callout's title. |
-| Worked example | `<div class="example"><header>Title <span class="level easy">easy</span></header><div class="body">...</div></div>` (levels: `easy` `medium` `hard`; exercise tags: `guided` `practice` `real` `boss`) |
+| Callout | `<div class="callout"><strong>Short title</strong> text</div>` · `.good` (win: `🏅 You can now`) · `.warn` (trap: `🪤 Classic trap`) · `.bad` (wrong way). The first `<strong>` becomes the callout's title. |
+| Worked example | `<div class="example"><header>Title <span class="level easy">easy</span></header><div class="body">...</div></div>` (levels: `easy` `medium` `hard`; exercise tags, with their emoji: `<span class="level guided">🔦 Guided</span>` · `practice` 🥋 · `real` 🛰️ · `boss` 👾) |
 | Numbered solution steps | `<ol class="work"><li>do X <span class="why">why: ...</span></li></ol>` |
 | One-step-at-a-time explainer | `<div class="card steps"><div class="step">...</div>...</div>` (adds Back/Next/Show all) |
-| Hint / solution | `<details class="hint"><summary>💡 Hint</summary><p>...</p></details>` · `class="solution"` |
+| Hint / solution | `<details class="hint"><summary>🕯️ Hint</summary><p>...</p></details>` · `<details class="solution"><summary>🗝️ Full solution</summary>...</details>` |
 | Terminal command | `<pre class="cmd"><code>node test.js</code></pre>` |
 | Cheat card | `<div class="cheat" id="cheat-N"><h3>...</h3><ul>...</ul><div class="formula">...</div></div>` |
 | Comeback key point | `<div class="keypoints"><div class="keypoint" id="kp-N">...</div></div>` |
@@ -54,7 +103,7 @@ Plain paragraphs between components are good: they give the eye a rest. Aim for 
 <div class="q" data-id="l2-p3" data-answer="4|x=4">
   <p>Solve \( 2x + 3 = 11 \)</p>
   <input class="q-input" placeholder="x = ?">
-  <details class="hint"><summary>💡 Hint</summary><p>Undo the +3 first.</p></details>
+  <details class="hint"><summary>🕯️ Hint</summary><p>Undo the +3 first.</p></details>
   <p class="q-why">Shown once correct: the insight to keep.</p>
 </div>
 
@@ -65,7 +114,19 @@ Plain paragraphs between components are good: they give the eye a rest. Aim for 
 </div>
 ```
 
-- `data-id` must be **unique on the page and never change** (solved state is saved under it). Pattern: `l<lesson>-<g|p|r|b><n>`, extras `x<yyyymmdd>-<n>`.
+- **Every `.q` and `.runner` has an explicit `data-id`.** Without one, `learn.js` falls back to the position on the page, which shifts when a question is inserted and marks the wrong question as solved.
+- `data-id` must be **unique on the page and never change** (solved state is saved under it). Patterns:
+
+  | Where | Pattern | Example |
+  |---|---|---|
+  | Lesson hook | `l<lesson>-hook` | `l2-hook` |
+  | Lesson quick checks ("Your turn", Expert level) | `l<lesson>-q<n>` | `l2-q3` |
+  | `exercises.html` lesson section | `l<lesson>-<g\|p\|r\|b><n>` (runners: `c<n>`) | `l2-p3`, `l2-c1` |
+  | `exercises.html` extra section | `x<yyyymmdd>-<n>` | `x20261016-4` |
+  | `comeback.html` | `cb<yyyymmdd>-w<n>` (warm-up), `cb<yyyymmdd>-h<n>` (hard) | `cb20261016-h2` |
+
+  The comeback date is the day the problems were written. A refresh replaces them with problems dated today.
+- After 3 wrong tries, a "🗝️ Show answer" button appears. It shows the **first** accepted answer and the `.q-why`, and counts as revealed, not solved. So put the clearest form first (`-2|x=-2`, not `x=-2|-2`), and write `.q-why` so it also teaches someone who gave up.
 - Typed answers: prefer numbers or short exact tokens. Text compare ignores case and spaces. List every reasonable form (`-2|x=-2`).
 - Multiple choice: all options about the same length. The right one must not stand out. Wrong options = real misconceptions.
 
@@ -81,15 +142,16 @@ Plain paragraphs between components are good: they give the eye a rest. Aim for 
     {"call": "slope(0, 0, 2, 4)", "expect": 2},
     {"call": "slope(1, 5, 3, 1)", "expect": -2}
   ]</script>
-  <details class="solution"><summary>✅ Solution</summary><pre><code class="language-js">...</code></pre></details>
+  <details class="solution"><summary>🗝️ Solution</summary><pre><code class="language-js">...</code></pre></details>
 </div>
 ```
 
 - `call` is an expression in the runner's language; `expect` is JSON (numbers get a tolerance; arrays/objects compared deeply).
 - `console.log` / `print` output is shown too.
 - Python loads Pyodide from the CDN on first run (needs internet). JS works offline.
-- **Verify:** before finishing, run the solution against the tests locally (`node -e` / `python3 -c`).
-- Other languages (C, Java, PHP, Rust, Go, SQL, frameworks...): no runner. Use a terminal task (below) + a `✅ Done when:` checklist.
+- Code runs in a background worker: an endless loop is stopped after 3 s with a 🧨 message, and the page never freezes.
+- **Verify:** `scripts/check.py` runs every JS/Python runner solution against its tests (SKILL.md §4d).
+- Other languages (C, Java, PHP, Rust, Go, SQL, frameworks...): no runner. Use a 📟 terminal task (below) + a `Done when:` checklist.
 
 ### Interactive visuals
 
@@ -117,12 +179,12 @@ Each lesson gets a `<section>` in `exercises.html`. **Counts depend on depth: us
 
 | Tier | Purpose |
 |---|---|
-| 🧩 Guided discovery | **Teaches while doing.** Small steps that lead to an insight the harder tiers need ("try x=1, then x=2... what do you notice?"). The insight goes in `.q-why`. |
-| 🟢 Practice | Direct use of the lesson's method. Full solution. |
-| 🟡 Real-world | A realistic situation from the field (a bug, a budget, a physics setup, an API response). Hint + full solution. |
-| 🔴 Boss | Hard. Combines this lesson with earlier lessons/topics. Two layered hints + full solution with the why. |
+| 🔦 Guided discovery | **Teaches while doing.** Small steps that lead to an insight the harder tiers need ("try x=1, then x=2... what do you notice?"). The insight goes in `.q-why`. |
+| 🥋 Practice | Direct use of the lesson's method. Full solution. |
+| 🛰️ Real-world | A realistic situation from the field (a bug, a budget, a physics setup, an API response). Hint + full solution. |
+| 👾 Boss | Hard. Combines this lesson with earlier lessons/topics. Two layered hints + full solution with the why. |
 
-Deep/Master: 🟡 and 🔴 must also hit the depth sections: an edge case, a "find the bug" on a common mistake, a debugging scenario ("here's the log/output, what's wrong?").
+Deep/Master: 🛰️ and 👾 must also hit the depth sections: an edge case, a "find the bug" on a common mistake, a debugging scenario ("here's the log/output, what's wrong?").
 
 The lesson page itself has its quick checks (guided + practice) and links to the full ladder.
 
@@ -133,37 +195,43 @@ Every solution shows the **reasoning**, not just the answer.
 Deep and Master lessons add these sections **after the cheat card**, behind the divider (the core lesson stays beginner-friendly). Master adds the last two. Each `<h2>` gets `class="deep"`, and the sidebar groups them under "Going deeper".
 
 ```html
-<div class="deeper"><p class="deeper-title">Going deeper</p><p>You have the basics. Now: what really happens inside, and where it breaks.</p></div>
+<div class="deeper"><p class="deeper-title">🤿 Going deeper</p><p>You have the basics. Now: what really happens inside, and where it breaks.</p></div>
 ``` Each one is **substantial**: several paragraphs, diagrams, code/math, not a single callout.
 
 ```html
-<h2 id="under-the-hood" class="deep">Under the hood</h2>      <!-- the real mechanism, step by step: use .steps + an SVG diagram -->
-<h2 id="edge-cases" class="deep">Edge cases</h2>               <!-- ≥ 4 × .example: input → surprising result → why -->
-<h2 id="mistakes" class="deep">Common mistakes</h2>            <!-- ≥ 4 × callout.bad (wrong code/work + exact error) then callout.good (fix + why) -->
-<h2 id="debugging" class="deep">Debugging it</h2>              <!-- how to make the invisible visible: logs, debugger, print the state, sanity checks -->
-<h2 id="connections" class="deep">Connections</h2>             <!-- links to other lessons/topics + "learn next" -->
-<h2 id="design" class="deep">Why it's designed this way</h2>   <!-- Master: the original problem, what came before, trade-offs -->
-<h2 id="expert" class="deep">Expert level</h2>                 <!-- Master: performance, security, scale, interview questions (as .q with solutions) -->
+<h2 id="under-the-hood" class="deep">🔩 Under the hood</h2>   <!-- the real mechanism, step by step: use .steps + an SVG diagram -->
+<h2 id="edge-cases" class="deep">🧗 Edge cases</h2>            <!-- ≥ 4 × .example: input → surprising result → why -->
+<h2 id="mistakes" class="deep">🪤 Common mistakes</h2>         <!-- ≥ 4 × callout.bad (wrong code/work + exact error) then callout.good (fix + why) -->
+<h2 id="debugging" class="deep">🪲 Debugging it</h2>           <!-- how to make the invisible visible: logs, debugger, print the state, sanity checks -->
+<h2 id="connections" class="deep">🕸️ Connections</h2>          <!-- links to other lessons/topics + "learn next" -->
+<h2 id="design" class="deep">📐 Why it's designed this way</h2> <!-- Master: the original problem, what came before, trade-offs -->
+<h2 id="expert" class="deep">🥷 Expert level</h2>              <!-- Master: performance, security, scale, interview questions (as .q with solutions) -->
 ```
 
 Master lessons are parts of a series. The sidebar lists every part, so no extra navigator is needed. Start each part's subtitle with "Part N of M:".
 
 ## Practice folder
 
-For coding topics, at least one 🔴 boss per lesson goes in `practice/NN-<name>/` so the user runs it in their own terminal:
+For coding topics, at least one 👾 boss per lesson goes in `practice/NN-<name>/` so the user runs it in their own terminal:
 
 ```
 practice/02-cart-total/
 ├── README.md       ← the task, the "done when" checklist, the run command
 ├── starter.js      ← what the user edits (TODOs, signatures)
-├── test.js         ← runs the checks, prints ✅/❌ per test + a final 🎉
+├── test.js         ← tests starter.js, or the file given: `node test.js solution.js`
 └── solution.js     ← reference solution (README says: try first!)
 ```
 
 - **No dependencies** unless the topic is the framework itself. Use what the language ships with: `node:assert` for JS, plain `assert` + `python3 test.py` for Python, a `main` + expected output for C/Java/Go.
 - Framework topics (React, Laravel...): a tiny real project is fine. README gives the exact setup commands (`npm create vite@latest ...`), using the current versions you looked up.
-- The test file prints friendly output. Never a raw stack trace as the only feedback.
-- **Verify** the solution passes the tests and the starter fails them before finishing.
+- The test file prints friendly output: `🍀 <test name>` or `🌀 <test name>: expected X, got Y` per test, then `🪩 All N tests pass!` at the end. Never a raw stack trace as the only feedback.
+- **The test file takes the file to test as its argument**, default the starter: `node test.js` tests `starter.js`, `node test.js solution.js` tests the solution (Python: `python3 test.py [solution.py]`). It **exits with code 1** if any test fails. Rust: put `#[test]`s in `starter.rs` and `solution.rs` instead (run with `rustc --test`).
+
+  ```js
+  const path = require("node:path");
+  const { cartTotal } = require(path.resolve(__dirname, process.argv[2] || "starter.js"));
+  ```
+- **Verify:** `scripts/check.py` checks the folder has all four files, the test fails on the starter and passes on the solution. Other languages (C, Java, Go...) get a warning: run those by hand.
 - Link it from `exercises.html` with a `pre.cmd` box showing `cd` + run command (path relative to the library root).
 
 ## Comeback page rules

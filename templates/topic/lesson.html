@@ -6,11 +6,11 @@
 <title>{{NN}} · {{LESSON_TITLE}} · {{TOPIC_TITLE}}</title>
 <script>try{var t=JSON.parse(localStorage.getItem("learn:theme"));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="stylesheet" href="../../assets/style.css">
-<!-- Optional, online only: math rendering + code highlighting. Pages still work offline without them. -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<!-- Math rendering + code highlighting, vendored in assets/vendor/ so they work offline. -->
+<link rel="stylesheet" href="../../assets/vendor/katex/katex.min.css">
+<script defer src="../../assets/vendor/katex/katex.min.js"></script>
+<script defer src="../../assets/vendor/katex/contrib/auto-render.min.js"></script>
+<script defer src="../../assets/vendor/highlight/highlight.min.js"></script>
 <script defer src="../../assets/learn.js"></script>
 </head>
 <body data-topic="{{SUBJECT_ID}}/{{TOPIC_ID}}">
@@ -23,9 +23,9 @@
   <div class="meta">
     <span class="pill">{{MINUTES}} min</span>
     <span class="pill">Needs: {{PREREQ or "nothing"}}</span>
-    <span class="pill">{{DEPTH: Quick / Normal / Deep / Master}}</span>
+    <span class="pill">{{DEPTH: 🪁 Quick / 🧭 Normal / 🤿 Deep / 🐉 Master}}</span>
   </div>
-  <!-- No table of contents needed: learn.js builds the sidebar from the <h2>s and numbers them. No emoji in headings. -->
+  <!-- No table of contents needed: learn.js builds the sidebar from the <h2>s and numbers them. No emoji in h1 or core h2s (PAGES.md#emoji). -->
 
   <!-- 1. HOOK: a real problem or surprising question + something to DO on the first screen
        (guess, predict, click, drag). Zero jargon. <= 120 words. -->
@@ -33,7 +33,7 @@
   <div class="problem">
     <p>{{REAL_PROBLEM or SURPRISING_QUESTION}}</p>
   </div>
-  <div class="q" data-id="hook" data-answer="{{ANSWER}}">
+  <div class="q" data-id="l{{N}}-hook" data-answer="{{ANSWER}}">
     <p>{{A GUESS / PREDICTION THE READER CAN MAKE WITH NO KNOWLEDGE}}</p>
     <ul class="q-choices"><li data-opt="a">{{...}}</li><li data-opt="b">{{...}}</li><li data-opt="c">{{...}}</li></ul>
     <p class="q-why">{{THE REVEAL, and the question it raises}}</p>
@@ -78,7 +78,7 @@
     <div class="callout bad"><strong>Wrong</strong>{{...}}</div>
     <div class="callout good"><strong>Right</strong>{{...}}</div>
   </div>
-  <div class="callout warn"><strong>Classic trap</strong> {{THE_MISTAKE_EVERYONE_MAKES and why it's wrong}}</div>
+  <div class="callout warn"><strong>🪤 Classic trap</strong> {{THE_MISTAKE_EVERYONE_MAKES and why it's wrong}}</div>
 
   <!-- 5. EXAMPLES: worked examples (count by depth, SKILL.md 4e), easy → harder. Every step shows WHAT and WHY. -->
   <h2 id="examples">Examples</h2>
@@ -106,18 +106,19 @@
   <ol class="work">
     <li>{{...}} <span class="why">why: {{...}}</span></li>
   </ol>
-  <div class="callout good"><strong>You can now</strong> {{WHAT_YOU_CAN_NOW_DO}}</div>
+  <div class="callout good"><strong>🏅 You can now</strong> {{WHAT_YOU_CAN_NOW_DO}}</div>
 
-  <!-- 7. YOUR TURN: 3–4 quick checks (guided → practice). The full ladder lives in exercises.html. -->
+  <!-- 7. YOUR TURN: quick checks, count by depth, SKILL.md §4e (guided → practice). Ids: l<N>-q1, l<N>-q2...
+       The full ladder lives in exercises.html. -->
   <h2 id="your-turn">Your turn</h2>
-  <div class="q" data-answer="{{ANSWER|ALT_ANSWER}}">
-    <p><span class="level guided">Guided</span> {{QUESTION}}</p>
+  <div class="q" data-id="l{{N}}-q1" data-answer="{{ANSWER|ALT_ANSWER}}">
+    <p><span class="level guided">🔦 Guided</span> {{QUESTION}}</p>
     <input class="q-input" placeholder="{{HINT_FORMAT e.g. x = ?}}">
-    <details class="hint"><summary>Hint</summary><p>{{HINT}}</p></details>
+    <details class="hint"><summary>🕯️ Hint</summary><p>{{HINT}}</p></details>
     <p class="q-why">{{WHY_THIS_IS_RIGHT}}</p>
   </div>
-  <div class="q" data-answer="b">
-    <p><span class="level practice">Practice</span> {{QUESTION}}</p>
+  <div class="q" data-id="l{{N}}-q2" data-answer="b">
+    <p><span class="level practice">🥋 Practice</span> {{QUESTION}}</p>
     <ul class="q-choices">
       <li data-opt="a">{{OPTION}}</li>
       <li data-opt="b">{{OPTION}}</li>
@@ -140,17 +141,20 @@
   <!-- GOING DEEPER (Deep / Master only): starts AFTER the core, behind this divider. Sections and minimums:
        PAGES.md#depth-sections and SKILL.md 4e. Give each h2 class="deep". Rules 2, 4, 5, 6 of TEACHING.md still apply. -->
   <div class="deeper">
-    <p class="deeper-title">Going deeper</p>
+    <p class="deeper-title">🤿 Going deeper</p>
     <p>{{One line: you have the basics. This part shows what really happens inside, and where it breaks.}}</p>
   </div>
-  <h2 id="under-the-hood" class="deep">Under the hood</h2>
-  <!-- ... edge-cases, mistakes, debugging, connections (+ design, expert for Master), all class="deep" -->
+  <h2 id="under-the-hood" class="deep">🔩 Under the hood</h2>
+  <!-- ... then, all class="deep", each with its emoji first:
+       🧗 Edge cases · 🪤 Common mistakes · 🪲 Debugging it · 🕸️ Connections
+       (+ Master: 📐 Why it's designed this way · 🥷 Expert level) -->
 
   <!-- NEXT -->
   <h2 id="next">Next</h2>
   <div class="next-nav">
-    <a href="exercises.html#lesson-{{N}}"><small>Practice now</small>Exercises</a>
-    <a href="{{NEXT_LESSON_FILE or comeback.html}}"><small>Next lesson</small>{{NEXT_TITLE or "Coming soon: ask /learn"}}</a>
+    <a href="exercises.html#lesson-{{N}}"><small>Practice now</small>🎲 Exercises</a>
+    <a href="{{NEXT_LESSON_FILE or comeback.html}}"><small>Next lesson</small>📜 {{NEXT_TITLE or "Coming soon: ask /learn"}}</a>
+    <!-- Master series, next part not built yet: <a href="exercises.html#lesson-{{N}}"><small>Next: Part {{N+1}}</small>{{PART_TITLE}}, ask /learn to build it</a> -->
   </div>
   <p><strong>Best next resource:</strong> <a href="{{BEST_SOURCE_URL}}">{{BEST_SOURCE_NAME}}</a>, {{WHY_THIS_SOURCE}}</p>
   <p class="ask-claude">Stuck or curious? Ask Claude: <code>/learn {{TOPIC_TITLE}}: &lt;your question&gt;</code></p>
