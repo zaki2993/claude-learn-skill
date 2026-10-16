@@ -4,6 +4,9 @@
  * Features (all opt-in by markup, see the skill's PAGES.md):
  *   theme toggle · visit tracking (rust dots) · quizzes · JS/Python code runners
  *   step-through explanations · sliders + function plots · copy buttons · KaTeX / highlight.js
+ *
+ * Storage keys are "<library id>:<path from the library root>", so moving or renaming the
+ * library folder keeps every solved answer and saved code. The id is window.LIBRARY.id (library.js).
  */
 (function () {
   "use strict";
@@ -29,8 +32,11 @@
     for (const kid of kids) node.append(kid);
     return node;
   }
-  const today = () => new Date().toISOString().slice(0, 10);
-  const pageKey = () => decodeURIComponent(location.pathname).replace(/\\/g, "/");
+  // Local date (not UTC), so a late-night session counts for today.
+  const today = () => {
+    const d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  };
 
   // ---------- where am I? ----------
   // Library root, relative to this page: "../../" for topic pages, "" for the home page.
@@ -38,6 +44,20 @@
   const ROOT = SCRIPT ? (SCRIPT.getAttribute("src") || "").replace(/assets\/learn\.js.*$/, "") : "";
   const FILE = decodeURIComponent(location.pathname.split("/").pop() || "main.html");
   const IS_LESSON = /-lesson-/.test(FILE) || FILE === "comeback.html";
+
+  // ---------- storage keys ----------
+  const ABS_PATH = decodeURIComponent(location.pathname).replace(/\\/g, "/");
+  const REL_PATH = ABS_PATH.split("/").slice(-((ROOT.match(/\.\.\//g) || []).length + 1)).join("/");
+  let LIB_ID = "lib"; // replaced by window.LIBRARY.id once library.js has loaded
+  const pageKey = (rel) => LIB_ID + ":" + (rel || REL_PATH);
+  // Before keys were relative, they used the absolute path. Copy an old value over once.
+  function migrateKey(newKey, oldKey) {
+    try {
+      if (localStorage.getItem(newKey) === null && localStorage.getItem(oldKey) !== null) {
+        localStorage.setItem(newKey, localStorage.getItem(oldKey));
+      }
+    } catch (e) { /* private mode */ }
+  }
 
   function loadLibrary() {
     if (window.LIBRARY) return Promise.resolve(window.LIBRARY);
@@ -104,7 +124,7 @@
       const b = ROOT + s.id + "/" + t.id + "/";
       searchIndex.push({ title: t.title, where: s.title + " · topic", href: b + "comeback.html", text: [t.title, t.summary, (t.tags || []).join(" ")].join(" ") });
       (t.lessons || []).forEach((l) => searchIndex.push({ title: l.title, where: t.title + " · lesson " + l.n, href: b + l.file, text: [l.title, l.summary, (l.tags || []).join(" ")].join(" ") }));
-      (t.keypoints || []).forEach((k) => searchIndex.push({ title: k, where: t.title + " · key point", href: b + "cheatsheet.html", text: k }));
+      (t.keypoints || []).forEach((k, i) => searchIndex.push({ title: k, where: t.title + " · key point", href: b + "comeback.html#kp-" + (i + 1), text: k }));
     }));
   }
   function search(query) {
@@ -371,7 +391,63 @@
   }
   const show = (v) => { try { return JSON.stringify(v); } catch (e) { return String(v); } };
 
+  // User code runs in a Web Worker made from a Blob URL (works from file://), so an endless
+  // loop can be stopped after RUN_LIMIT_MS instead of freezing the page.
+  const RUN_LIMIT_MS = 3000;
+  const STOPPED = "Stopped after " + RUN_LIMIT_MS / 1000 + " s: is there an endless loop?";
+  const blobURL = (src) => URL.createObjectURL(new Blob([src], { type: "text/javascript" }));
+  // A result crosses from the worker as JSON text: { ok, json } or { ok: false, error }.
+  const unpack = (r) => (r.ok ? { ok: true, value: r.json === undefined ? undefined : JSON.parse(r.json) } : r);
+
+  const JS_WORKER = `
+self.onmessage = (e) => {
+  const { code, tests } = e.data;
+  let n = 0;
+  const fmt = (args) => args.map((a) => { if (typeof a === "string") return a; try { return JSON.stringify(a); } catch (x) { return String(a); } }).join(" ");
+  const log = (...a) => { if (n++ < 500) self.postMessage({ log: fmt(a) }); };
+  const fakeConsole = { log, error: log, warn: log, info: log };
+  const pack = (v) => { let json; try { json = JSON.stringify(v); } catch (x) { json = JSON.stringify(String(v)); } return { ok: true, json }; };
+  const probes = tests.map((t) => "(() => { try { return __pack(" + t.call + "); } catch (e) { return { ok: false, error: String(e) }; } })()");
+  try {
+    const results = new Function("console", "__pack", code + "\\n;return [" + probes.join(",") + "];")(fakeConsole, pack);
+    self.postMessage({ done: true, results });
+  } catch (err) {
+    self.postMessage({ done: true, error: String(err) });
+  }
+};`;
+  let jsWorkerURL = null;
+
   function runJS(code, tests) {
+    return new Promise((resolve) => {
+      let worker;
+      try {
+        jsWorkerURL = jsWorkerURL || blobURL(JS_WORKER);
+        worker = new Worker(jsWorkerURL);
+      } catch (e) {
+        resolve(runJSInline(code, tests));
+        return;
+      }
+      const logs = [];
+      let heard = false;
+      const finish = (res) => { clearTimeout(timer); worker.terminate(); resolve(Object.assign({ logs }, res)); };
+      const timer = setTimeout(() => finish({ error: STOPPED }), RUN_LIMIT_MS);
+      worker.onmessage = (e) => {
+        heard = true;
+        if (e.data.log !== undefined) { logs.push(e.data.log); return; }
+        finish(e.data.error ? { error: e.data.error } : { results: e.data.results.map(unpack) });
+      };
+      worker.onerror = (e) => {
+        e.preventDefault();
+        if (heard) return finish({ error: e.message || "Error" });
+        // The worker itself could not start (a browser that blocks workers here): run inline.
+        clearTimeout(timer); worker.terminate(); resolve(runJSInline(code, tests));
+      };
+      worker.postMessage({ code, tests });
+    });
+  }
+
+  // Fallback without a worker: same thing on the main thread (no endless-loop protection).
+  function runJSInline(code, tests) {
     const logs = [];
     const fmt = (args) => args.map((a) => (typeof a === "string" ? a : show(a))).join(" ");
     const fakeConsole = { log: (...a) => logs.push(fmt(a)), error: (...a) => logs.push(fmt(a)), warn: (...a) => logs.push(fmt(a)) };
@@ -385,11 +461,80 @@
     }
   }
 
+  // Python: Pyodide in a worker that stays loaded between runs. On a timeout the worker is
+  // stopped and the next run loads a fresh one.
+  const PYODIDE = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/";
+  const PY_WORKER = `
+importScripts("${PYODIDE}pyodide.js");
+const ready = loadPyodide({ indexURL: "${PYODIDE}" });
+ready.then(() => self.postMessage({ ready: true }), (e) => self.postMessage({ loadError: String((e && e.message) || e) }));
+self.onmessage = async (e) => {
+  const py = await ready;
+  const { code, tests } = e.data;
+  const last = (err) => String(err.message || err).trim().split("\\n").slice(-1)[0];
+  py.setStdout({ batched: (s) => self.postMessage({ log: s }) });
+  py.setStderr({ batched: (s) => self.postMessage({ log: s }) });
+  const ns = py.globals.get("dict")();
+  try {
+    py.runPython(code, { globals: ns });
+  } catch (err) {
+    ns.destroy();
+    self.postMessage({ done: true, error: last(err) });
+    return;
+  }
+  const results = tests.map((t) => {
+    try { return { ok: true, json: py.runPython("__import__('json').dumps(" + t.call + ")", { globals: ns }) }; }
+    catch (err) { return { ok: false, error: last(err) }; }
+  });
+  ns.destroy();
+  self.postMessage({ done: true, results });
+};`;
+  let pyWorkerReady = null, pyLoaded = false, pyInline = false;
+  function pyWorker() {
+    if (!pyWorkerReady) {
+      pyWorkerReady = new Promise((resolve, reject) => {
+        let w;
+        try { w = new Worker(blobURL(PY_WORKER)); } catch (e) { pyInline = true; reject(e); return; }
+        w.onmessage = (e) => {
+          if (e.data.ready) { pyLoaded = true; resolve(w); }
+          else if (e.data.loadError) { w.terminate(); reject(new Error("Could not load Python (needs internet the first time).")); }
+        };
+        // importScripts failed: offline, or a browser that blocks workers here. Try the main thread next.
+        w.onerror = (e) => { e.preventDefault(); w.terminate(); pyInline = true; reject(new Error("worker")); };
+      });
+      pyWorkerReady.catch(() => { pyWorkerReady = null; });
+    }
+    return pyWorkerReady;
+  }
+  async function runPython(code, tests) {
+    if (pyInline) return runPythonInline(code, tests);
+    let w;
+    try { w = await pyWorker(); } catch (e) {
+      if (pyInline) return runPythonInline(code, tests);
+      throw e;
+    }
+    return new Promise((resolve) => {
+      const logs = [];
+      const finish = (res) => { clearTimeout(timer); resolve(Object.assign({ logs }, res)); };
+      const timer = setTimeout(() => {
+        w.terminate(); pyWorkerReady = null; pyLoaded = false;
+        finish({ error: STOPPED + " (Python reloads on the next run.)" });
+      }, RUN_LIMIT_MS);
+      w.onmessage = (e) => {
+        if (e.data.log !== undefined) { logs.push(e.data.log); return; }
+        finish(e.data.error ? { error: e.data.error } : { results: e.data.results.map(unpack) });
+      };
+      w.onerror = (e) => { e.preventDefault(); finish({ error: e.message || "Error" }); };
+      w.postMessage({ code, tests });
+    });
+  }
+
+  // Fallback without a worker: Pyodide on the main thread (no endless-loop protection).
   let pyodideReady = null;
   function loadPyodide() {
     if (!pyodideReady) {
       pyodideReady = new Promise((resolve, reject) => {
-        const s = el("script", { src: "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js" });
+        const s = el("script", { src: PYODIDE + "pyodide.js" });
         s.onload = () => window.loadPyodide().then(resolve, reject);
         s.onerror = () => reject(new Error("Could not load Python (needs internet the first time)."));
         document.head.append(s);
@@ -397,7 +542,7 @@
     }
     return pyodideReady;
   }
-  async function runPython(code, tests) {
+  async function runPythonInline(code, tests) {
     const py = await loadPyodide();
     const logs = [];
     py.setStdout({ batched: (s) => logs.push(s) });
@@ -428,6 +573,7 @@
       const tests = testsTag ? JSON.parse(testsTag.textContent) : [];
       const starter = area.value;
       const saveKey = "learn:code:" + pageKey() + ":" + box.dataset.id;
+      migrateKey(saveKey, "learn:code:" + ABS_PATH + ":" + box.dataset.id);
       const saved = store.get(saveKey, null);
       if (saved !== null) area.value = saved;
       area.spellcheck = false;
@@ -447,11 +593,11 @@
         let res;
         try {
           if (lang === "py" || lang === "python") {
-            if (!pyodideReady) line("log", "📟 Loading Python (first run takes a few seconds)…");
+            if (!pyLoaded && !pyodideReady) line("log", "📟 Loading Python (first run takes a few seconds)…");
             res = await runPython(area.value, tests);
             out.textContent = "";
           } else {
-            res = runJS(area.value, tests);
+            res = await runJS(area.value, tests);
           }
         } catch (e) {
           res = { logs: [], error: String(e.message || e) };
@@ -621,7 +767,7 @@
   }
 
   // Public API for page-specific scripts.
-  window.Learn = { store, el, answerMatches, markSolved, drawPlot, search, root: ROOT };
+  window.Learn = { store, el, answerMatches, markSolved, drawPlot, search, root: ROOT, pageKey, today };
 
   // Pages made before main.html existed link to index.html: point them at main.html.
   function fixHomeLinks() {
@@ -635,13 +781,20 @@
     else buildShell(chapters);
     recordVisit();
     initLibs();
-    initQuizzes();
-    initRunners();
     initSteps();
     initInteractive();
     initCopy();
-    initProgress();
-    loadLibrary().then((lib) => { buildIndex(lib); fillTree(lib); });
+    // Saved answers are keyed by the library id, so wait for library.js (a local file: instant).
+    loadLibrary().then((lib) => {
+      if (lib.id) LIB_ID = String(lib.id);
+      migrateKey(solvedKey(), "learn:solved:" + ABS_PATH);
+      initQuizzes();
+      initRunners();
+      initProgress();
+      buildIndex(lib);
+      fillTree(lib);
+      document.dispatchEvent(new CustomEvent("learn:ready", { detail: { library: lib } }));
+    });
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();

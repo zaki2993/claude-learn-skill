@@ -1,6 +1,8 @@
 // Library catalogue. Read by main.html (the library home) and the sidebar on every page, search, and rust dots.
 // Claude keeps this file up to date. It is a .js file (not .json) so it loads from file:// without a server.
 window.LIBRARY = {
+  // Same as learn.json "libraryId". Saved answers are keyed by it, so never change it.
+  id: "{{LIBRARY_ID}}",
   subjects: [
     // {
     //   id: "math", title: "Math",

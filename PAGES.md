@@ -67,7 +67,7 @@ The user likes emoji, but not the generic ones every chatbot uses. So there is o
 - Start sections with a concrete thing (a number, a line of code, a picture), then the explanation.
 - Every step in a solution: **what** you do + `<span class="why">why: ...</span>`.
 - Name things consistently. Once a term is in the glossary, always use it the same way.
-- Math: `\( x^2 \)` inline, `$$ ... $$` or `\[ ... \]` for display (KaTeX). Don't use single `$`. Write it so it still reads OK as raw text if KaTeX doesn't load (offline).
+- Math: `\( x^2 \)` inline, `$$ ... $$` or `\[ ... \]` for display (KaTeX). Don't use single `$`. KaTeX ships in `assets/vendor/`, so it works offline. Still write math that reads OK as raw text.
 - Code: `<pre><code class="language-js">`. Escape `<`, `>`, `&` inside HTML.
 
 ## Layout: vary it
@@ -148,6 +148,7 @@ Plain paragraphs between components are good: they give the eye a rest. Aim for 
 - `call` is an expression in the runner's language; `expect` is JSON (numbers get a tolerance; arrays/objects compared deeply).
 - `console.log` / `print` output is shown too.
 - Python loads Pyodide from the CDN on first run (needs internet). JS works offline.
+- Code runs in a background worker: an endless loop is stopped after 3 s with a 🧨 message, and the page never freezes.
 - **Verify:** `scripts/check.py` runs every JS/Python runner solution against its tests (SKILL.md §4d).
 - Other languages (C, Java, PHP, Rust, Go, SQL, frameworks...): no runner. Use a 📟 terminal task (below) + a `Done when:` checklist.
 

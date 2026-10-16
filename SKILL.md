@@ -30,10 +30,12 @@ The library is any folder containing `learn.json`.
 
 1. Look for `learn.json` in the current directory, then its parents.
 2. **Found:** that folder is the library root. Read `learn.json` (settings + `notes` = the user's teaching preferences).
-   **Upgrade check:** compare the library's `assets/style.css`, `assets/learn.js` and `main.html` with this skill's [templates/library/](./templates/library/) (`cmp`). If they differ or are missing, copy the skill's versions over silently. These files are owned by the skill, never edited per library, so this is how old libraries get design fixes. Never overwrite `library.js` or `learn.json`.
+   **Upgrade check:** compare the library's `assets/style.css`, `assets/learn.js`, `assets/vendor/` and `main.html` with this skill's [templates/library/](./templates/library/) (`cmp`, `diff -r`). If they differ or are missing, copy the skill's versions over silently. These files are owned by the skill, never edited per library, so this is how old libraries get design fixes. Never overwrite `library.js` or `learn.json`. If they have no library id yet, add one (same steps as for a new library, below): old saved answers move over by themselves on first load.
    Old libraries have an `index.html` home instead of `main.html`: copy `main.html` in, delete `index.html`, and replace `../../index.html` with `../../main.html` in every topic page.
+   Old topic pages load KaTeX and highlight.js from `cdnjs.cloudflare.com`: point those four tags at `../../assets/vendor/...` as in the templates.
 3. **Not found:** ask once: *"No library here. Create one in `<cwd>`?"* On yes:
-   - Copy everything in [templates/library/](./templates/library/) into it (`main.html`, `library.js`, `learn.json`, `assets/`).
+   - Copy everything in [templates/library/](./templates/library/) into it (`main.html`, `library.js`, `learn.json`, `assets/` with `assets/vendor/`).
+   - Make a library id (`python3 -c "import uuid; print(uuid.uuid4())"`) and write it in place of `{{LIBRARY_ID}}` in both `learn.json` (`libraryId`) and `library.js` (`id`). Pages key saved answers by it (pages can't read JSON from `file://`, so `library.js` carries a copy). Never change it later.
    - Open `main.html` in the browser (see §7).
    - Show the user the **how this works** card from §8, then continue with their request.
 
