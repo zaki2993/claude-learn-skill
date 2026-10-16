@@ -49,7 +49,7 @@ Never create a library without asking. Never copy `templates/topic/` files to th
 |---|---|---|
 | *(nothing)* | overview | §3 |
 | a topic that doesn't exist yet | **new topic** | §4, lesson 1 |
-| a topic that exists / "next" / "continue" | **next lesson** | §4, next lesson number |
+| a topic that exists / "next" / "continue" | **next lesson** | §4, next lesson number (a Master series in progress: its next planned part, §4b) |
 | "more", "harder", "problems", "exercises" | **more exercises** | §5 |
 | "forgot", "review", "refresh", "comeback" | **comeback** | open/refresh `comeback.html` (§5) |
 | "update", "fix", "add", "change" | **update** | edit the pages it names; keep everything consistent (§6) |
@@ -79,7 +79,7 @@ Open `main.html`.
 
 ### 4a. Gather context (fast)
 0. **Depth asked?** If you haven't asked the depth question for *this* lesson (§2), stop and ask it now.
-1. Read `<subject>/<topic>/progress.md` if it exists: struggles, what clicked, the planned next step.
+1. Read `<subject>/<topic>/progress.md` if it exists: struggles, what clicked, the planned next step, and the `## Master plan` if a series is in progress.
 2. Look at the existing lessons in the topic (titles, cheat cards) so you build on them and don't repeat.
 3. **Sources:** if `<subject>/<topic>/sources/` (or `<subject>/sources/`) has files (PDF, notes, exercise sheets), read the relevant parts and teach **their** way: same notation, same method, same terms. If the user mentions class material elsewhere, ask for the path.
 4. **Look things up, smartly:**
@@ -90,7 +90,14 @@ Open `main.html`.
 ### 4b. Pick the ONE thing
 One lesson = one idea the user can *use* by the end. Pick it from `progress.md`'s next step, or the most useful next idea for the topic. If the request is big, split it into lessons and say so: *"This is 3 lessons. Starting with X."*
 
-**Master** is the exception: it is a **series of 3–5 lesson files** (`NN-lesson-...`), built in one go, that together cover the whole concept end-to-end. Plan the parts first, from gentle to hard (e.g. Spring Security: 1. who checks a request before your code? · 2. how it knows who you are · 3. who's allowed where · 4. tokens instead of sessions · 5. finding and fixing security bugs) and tell the user the plan in one line before building. **Part 1 is the gentlest page of the series**: its core must work for someone who has never heard of the topic.
+**Master** is the exception: it is a **series of 3–5 lesson files** (`NN-lesson-...`) that together cover the whole concept end-to-end. It is **built one part per turn**, never in one go: at the §4e minimums a whole series is ~40 worked examples and ~90 exercises, and quality runs out near the end.
+
+1. **Plan all parts.** Titles in plain words, the one outcome of each part, gentle → hard (e.g. Spring Security: 1. who checks a request before your code? · 2. how it knows who you are · 3. who's allowed where · 4. tokens instead of sessions · 5. finding and fixing security bugs). Write the plan into `progress.md` under a `## Master plan` heading (one line per part: number, title, outcome, built yes/no), and give it to the user in one line.
+2. **Build part 1 completely:** the lesson, its `exercises.html` section, its practice tasks, its cheat card, `comeback.html` (covering the parts built so far), `library.js`.
+3. **On "next" / "continue"**, build the next unbuilt part from the plan. Still ask the depth question (§2), with Master as "(Recommended)". The 🏔️ capstone and the comeback that covers the whole topic come with the **last** part.
+4. **Next card:** until part N+1 exists, part N's Next card says "Part N+1: <title>, ask /learn to build it" (and links to `exercises.html#lesson-N`). When you build part N+1, change part N's Next card to link to it.
+
+**Part 1 is the gentlest page of the series**: its core must work for someone who has never heard of the topic.
 
 ### 4c. Build the files
 In `<library>/<subject>/<topic>/`:
@@ -131,12 +138,12 @@ Per lesson file (Master: per part, so a 4-part Master has 4× the lesson numbers
 
 | | 🪁 Quick | 🧭 Normal | 🤿 Deep | 🐉 Master (each part) |
 |---|---|---|---|---|
-| Time | ~5 min | ~15 min | ~40 min | ~30–45 min × 3–5 parts |
+| Time | ~5 min | ~15 min | ~40 min | ~30–45 min × 3–5 parts, one part per turn (§4b) |
 | Worked examples | 2 | 4 | 8 | 8 |
 | Visuals | 1 | 1–2 | 3+ (≥ 1 interactive) | 3+ (≥ 1 interactive) |
 | Quick checks in lesson | 2 | 3 | 5 | 5 |
 | Exercises in `exercises.html` | 5 (🔦1 🥋2 🛰️1 👾1) | 10 (🔦2 🥋3 🛰️3 👾2) | 18 (🔦3 🥋5 🛰️6 👾4) | 18 per part |
-| Terminal tasks in `practice/` (coding) | 0 | 1 | 2 | 2 per part + 1 capstone |
+| Terminal tasks in `practice/` (coding) | 0 | 1 | 2 | 2 per part + 1 capstone (with the last part) |
 | Depth sections (below) | none | 🪤 trap callout | all 5 | all 7 |
 
 **Depth sections** go **after the core lesson** (after the cheat card), behind the "Going deeper" divider. The core stays beginner-friendly at every depth. Markup in [PAGES.md](./PAGES.md#depth-sections):
@@ -151,7 +158,7 @@ Per lesson file (Master: per part, so a 4-part Master has 4× the lesson numbers
 | 📐 **Why it's designed this way** | The problem it was invented to solve, what came before, the trade-offs | | ✓ |
 | 🥷 **Expert level** | Performance, security, scale, interview-level questions, what seniors know | | ✓ |
 
-**Master extras:** a final 🏔️ **capstone** (`practice/capstone-<name>/` for coding, or a multi-step real problem on its own page for math) that uses every part. Plus a `comeback.html` that covers all parts.
+**Master extras**, built with the **last** part: a final 🏔️ **capstone** (`practice/capstone-<name>/` for coding, or a multi-step real problem on its own page for math) that uses every part, and a `comeback.html` that covers all parts. Before that, the comeback covers the parts built so far.
 
 Depth means **going further down, not starting harder.** The core of a Deep or Master lesson is as gentle as a Normal one. Depth lives in Going deeper, plus more examples and harder exercises. A Deep lesson on the Spring filter chain should show the actual filters in order, what each one does with the request, what happens when one throws, and how to print the chain. Not 3 more paragraphs of the Normal content.
 

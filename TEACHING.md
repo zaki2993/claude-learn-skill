@@ -33,7 +33,7 @@ Every lesson, at every depth, follows this arc. Depth changes how far you go, ne
 
 **The core (chapters 1–8) of a Deep or Master lesson must be readable by a total beginner.** Depth goes *after* the basics.
 
-**Master series:** part 1 is the gentlest page of the whole series. Difficulty climbs part by part. Never preview names from later parts (no "SFT, DPO, KV cache" on page 1). Show where the journey goes with outcomes in plain words ("by part 5 it can fix bugs in your code").
+**Master series:** the parts are planned together but built one per session turn (SKILL.md §4b), so plan the climb before writing part 1. Part 1 is the gentlest page of the whole series. Difficulty climbs part by part. Never preview names from later parts (no "SFT, DPO, KV cache" on page 1). Show where the journey goes with outcomes in plain words ("by part 5 it can fix bugs in your code").
 
 ## Titles
 
