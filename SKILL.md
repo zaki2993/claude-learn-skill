@@ -120,6 +120,8 @@ Also link the previous lesson's **Next** card to the new lesson.
 
 **Before writing a lesson, read [TEACHING.md](./TEACHING.md)** (how to explain: the lesson arc, the jargon budget, the self-review). **Then follow [PAGES.md](./PAGES.md)** for components and markup. Read both before the first page of a session.
 
+**The quality bar:** once per session, before your first lesson, read the golden example in [examples/math/linear-equations/](./examples/math/linear-equations/): [the lesson](./examples/math/linear-equations/01-lesson-find-the-missing-number.html) and its section in [exercises.html](./examples/math/linear-equations/exercises.html). It is a finished Normal lesson that passes `scripts/check.py` and the TEACHING.md self-review. Match its gentleness, its pictures-before-words order, its "why" on every step, and its emoji use. Don't copy its topic or numbers.
+
 ### 4d. Quality check before you finish
 
 **Run the check script** at the end of every lesson build, and fix everything it reports:
@@ -199,6 +201,7 @@ After making something, reply in this shape (≤ 10 lines):
    📟 Terminal boss: practice/02-budget-split → `node test.js`
 
 🛤️ Next: do the lesson, then the 👾 boss. Ask me if anything's unclear.
+   Next time, paste your progress summary (sidebar → "Copy my progress for Claude").
 ```
 
 The first emoji is the lesson's depth (🪁 🧭 🤿 🐉).
@@ -225,4 +228,8 @@ At the end of **every** `/learn` interaction about a topic, update its `progress
 
 Keep it under ~60 lines: merge old entries. Use it at the start of every session to target weak spots, and mention it naturally: *"Last time negative numbers tripped you up, so example 2 covers that."*
 
+**Pasted progress summary.** Pages can't talk to you: wrong answers, hints and revealed answers live in the browser. The sidebar's "Copy my progress for Claude" button copies a plain-text summary for one topic (starts with `/learn progress summary:`). When the user pastes one, fold it into that topic's `progress.md`: questions that took 3+ tries or were revealed go under **Struggles** (with what the question was about), many first-try solves go under **Clicked**, and code that never passed is a struggle too. Then use it like any struggle: target it in the next lesson, exercises or comeback. Don't repeat the summary back.
+
 If the user tells you a general teaching preference ("less text", "more code"), add it to `learn.json` → `notes` and follow it from then on.
+
+If they want reviews more or less often, change `reviewIntervalsDays` (days between comeback reviews, default `[1, 3, 7, 21]`) in **both** `learn.json` and `library.js` (pages read the `library.js` copy). `main.html` shows a topic under "Due for review" when the next interval since its last comeback visit has passed.

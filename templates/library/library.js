@@ -3,6 +3,8 @@
 window.LIBRARY = {
   // Same as learn.json "libraryId". Saved answers are keyed by it, so never change it.
   id: "{{LIBRARY_ID}}",
+  // Same as learn.json "reviewIntervalsDays": days between comeback reviews (feeds "Due for review").
+  reviewIntervalsDays: [1, 3, 7, 21],
   subjects: [
     // {
     //   id: "math", title: "Math",

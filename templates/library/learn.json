@@ -2,5 +2,6 @@
   "learnLibrary": 1,
   "libraryId": "{{LIBRARY_ID}}",
   "defaultLength": "normal",
+  "reviewIntervalsDays": [1, 3, 7, 21],
   "notes": []
 }

@@ -126,6 +126,7 @@ Plain paragraphs between components are good: they give the eye a rest. Aim for 
   | `comeback.html` | `cb<yyyymmdd>-w<n>` (warm-up), `cb<yyyymmdd>-h<n>` (hard) | `cb20261016-h2` |
 
   The comeback date is the day the problems were written. A refresh replaces them with problems dated today.
+- After 3 wrong tries, a "🗝️ Show answer" button appears. It shows the **first** accepted answer and the `.q-why`, and counts as revealed, not solved. So put the clearest form first (`-2|x=-2`, not `x=-2|-2`), and write `.q-why` so it also teaches someone who gave up.
 - Typed answers: prefer numbers or short exact tokens. Text compare ignores case and spaces. List every reasonable form (`-2|x=-2`).
 - Multiple choice: all options about the same length. The right one must not stand out. Wrong options = real misconceptions.
 

@@ -177,7 +177,8 @@
 
     // Progress (filled by initProgress)
     const progress = el("div", { class: "sb-progress", hidden: "" });
-    side.append(progress, treeWrap, el("div", { class: "sb-foot" }, themeButton()));
+    const share = el("div", { class: "sb-share", hidden: "" });
+    side.append(progress, share, treeWrap, el("div", { class: "sb-foot" }, themeButton()));
 
     // Mobile top bar
     const menuBtn = el("button", { type: "button", "aria-label": "Open navigation", text: "Menu" });
@@ -233,7 +234,7 @@
       spy();
     }
 
-    sidebarParts = { tree, progress, tbFill };
+    sidebarParts = { tree, progress, share, tbFill };
   }
 
   function fillTree(lib) {
@@ -268,13 +269,137 @@
     if (!tree.children.length) tree.append(el("li", { class: "empty", text: "Nothing yet. Run /learn <topic>." }));
   }
 
-  // ---------- visits (feeds the rust dots on the home page) ----------
+  // ---------- visits (feeds the rust dots and "Due for review" on the home page) ----------
   function recordVisit() {
     const topic = document.body.dataset.topic;
     if (!topic) return;
     const visits = store.get("learn:visits", {});
     visits[topic] = today();
     store.set("learn:visits", visits);
+    if (FILE === "comeback.html") {
+      // One comeback per day at most: { "<subject>/<topic>": { n, last } }
+      const key = "learn:comebacks:" + LIB_ID;
+      const cbs = store.get(key, {});
+      const cb = cbs[topic] || { n: 0, last: "" };
+      if (cb.last !== today()) { cb.n++; cb.last = today(); }
+      cbs[topic] = cb;
+      store.set(key, cbs);
+    }
+  }
+
+  // ---------- attempts: what Claude can't see (tries, hints, solutions, reveals) ----------
+  // learn:attempts:<page key> → { <data-id>: { kind, text, tries, wrong, hints, solutions, revealed, solved, firstTry, date } }
+  const attemptsKey = (rel) => "learn:attempts:" + pageKey(rel);
+  // The question's first line as plain text, with math back as its TeX source.
+  function snippet(item) {
+    const p = item.querySelector("p");
+    if (!p) return "";
+    const c = p.cloneNode(true);
+    c.querySelectorAll(".level").forEach((n) => n.remove());
+    c.querySelectorAll(".katex").forEach((k) => {
+      const tex = k.querySelector('annotation[encoding="application/x-tex"]');
+      k.replaceWith(tex ? tex.textContent : k.textContent);
+    });
+    return c.textContent.replace(/\s+/g, " ").trim().slice(0, 90);
+  }
+  function noteAttempt(item, change) {
+    const all = store.get(attemptsKey(), {});
+    const id = item.dataset.id;
+    const a = all[id] || { kind: item.classList.contains("runner") ? "runner" : "q", text: snippet(item), tries: 0, wrong: 0, hints: 0, solutions: 0 };
+    change(a);
+    a.date = today();
+    all[id] = a;
+    store.set(attemptsKey(), all);
+    return a;
+  }
+  const attemptOf = (item) => store.get(attemptsKey(), {})[item.dataset.id] || null;
+  // Count each hint / solution once per page view.
+  function watchHelp(item) {
+    $$("details", item).forEach((d) => {
+      let seen = false;
+      d.addEventListener("toggle", () => {
+        if (!d.open || seen) return;
+        seen = true;
+        const sol = d.classList.contains("solution");
+        noteAttempt(item, (a) => { if (sol) a.solutions++; else a.hints++; });
+      });
+    });
+  }
+  function recordResult(item, ok) {
+    return noteAttempt(item, (a) => {
+      if (a.solved) return; // already solved: practice runs don't change the record
+      a.tries++;
+      if (ok) { a.solved = today(); a.firstTry = a.tries === 1 && !a.hints && !a.solutions; }
+      else a.wrong++;
+    });
+  }
+
+  // ---------- "Copy my progress for Claude" ----------
+  function progressSummary(topic) {
+    const pages = {};
+    const kinds = { "learn:attempts:": "attempts", "learn:solved:": "solved" };
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        Object.keys(kinds).forEach((pre) => {
+          const p = pre + LIB_ID + ":" + topic + "/";
+          if (!k.startsWith(p)) return;
+          const file = k.slice(p.length);
+          pages[file] = pages[file] || { attempts: {}, solved: {} };
+          pages[file][kinds[pre]] = store.get(k, {});
+        });
+      }
+    } catch (e) { /* storage blocked */ }
+    const files = Object.keys(pages).sort();
+    const solvedBy = files.map((f) => [f, Object.keys(pages[f].solved).length]).filter((x) => x[1]);
+    const total = solvedBy.reduce((n, x) => n + x[1], 0);
+    const rows = [];
+    files.forEach((f) => Object.entries(pages[f].attempts).forEach(([id, a]) => rows.push(Object.assign({ file: f, id }, a))));
+    const name = (r) => r.file.replace(/\.html$/, "") + " " + r.id + (r.text ? ': "' + r.text + '"' : "");
+    const list = (title, items, extra) => {
+      if (!items.length) return [];
+      const out = [title + ":"].concat(items.slice(0, 12).map((r) => "- " + name(r) + (extra ? " (" + extra(r) + ")" : "")));
+      if (items.length > 12) out.push("- +" + (items.length - 12) + " more");
+      return out;
+    };
+    return [
+      "/learn progress summary: " + topic + " (" + today() + ")",
+      "Solved: " + total + (total === 1 ? " question" : " questions") + (solvedBy.length ? " (" + solvedBy.map((x) => x[0].replace(/\.html$/, "") + " " + x[1]).join(", ") + ")" : ""),
+      "First try: " + rows.filter((r) => r.firstTry).length,
+    ].concat(
+      list("Took 3+ tries", rows.filter((r) => r.kind === "q" && r.tries >= 3), (r) => r.tries + " tries, " + (r.solved ? "solved" : r.revealed ? "answer revealed" : "not solved")),
+      list("Answer revealed, not solved", rows.filter((r) => r.revealed && !r.solved)),
+      list("Hints opened", rows.filter((r) => r.hints), (r) => r.hints + "x"),
+      list("Solutions opened", rows.filter((r) => r.solutions)),
+      list("Code that never passed", rows.filter((r) => r.kind === "runner" && r.tries && !r.solved), (r) => r.tries + " runs"),
+    ).join("\n");
+  }
+  function copyText(text) {
+    const fallback = () => {
+      const ta = el("textarea", { style: "position:fixed;opacity:0" });
+      ta.value = text;
+      document.body.append(ta);
+      ta.select();
+      let done = false;
+      try { done = document.execCommand("copy"); } catch (e) { /* not allowed */ }
+      ta.remove();
+      if (!done) window.prompt("Copy this, then paste it to Claude:", text);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text).catch(fallback);
+    fallback();
+    return Promise.resolve();
+  }
+  function initShare() {
+    const topic = document.body.dataset.topic;
+    if (!topic || !sidebarParts) return;
+    const box = sidebarParts.share;
+    const btn = el("button", { type: "button", class: "ghost", text: "Copy my progress for Claude" });
+    btn.addEventListener("click", () => copyText(progressSummary(topic)).then(() => {
+      btn.textContent = "Copied ✓ Paste it to Claude";
+      setTimeout(() => { btn.textContent = "Copy my progress for Claude"; }, 2000);
+    }));
+    box.append(btn, el("p", { text: "What was hard on this topic, so Claude can target it next time." }));
+    box.hidden = false;
   }
 
   // ---------- solved tracking + progress ----------
@@ -289,6 +414,8 @@
   let progressUI = null;
   function initProgress() {
     const items = $$(".q, .runner");
+    // The home page counts "N / M solved" per topic from this list.
+    if (document.body.dataset.topic) store.set("learn:items:" + pageKey(), items.map((n) => n.dataset.id));
     if (items.length < 2 || !sidebarParts) return;
     const box = sidebarParts.progress;
     const label = el("div");
@@ -336,13 +463,29 @@
       q.dataset.id = q.dataset.id || "q" + (i + 1);
       const accepted = q.dataset.answer || "";
       const feedback = el("div", { class: "q-feedback", "aria-live": "polite" });
+      // After 3 wrong tries, offer the answer. That counts as "revealed", not solved.
+      const reveal = el("button", { type: "button", class: "ghost q-reveal", text: "🗝️ Show answer", hidden: "" });
       const done = (ok) => {
         q.classList.toggle("correct", ok);
         q.classList.toggle("wrong", !ok);
         feedback.className = "q-feedback " + (ok ? "ok" : "no");
         feedback.textContent = ok ? "🍀 Correct." : "🌀 Not yet. Try again, or open a hint.";
-        if (ok) markSolved(q.dataset.id);
+        const a = recordResult(q, ok);
+        if (ok) { markSolved(q.dataset.id); reveal.hidden = true; }
+        else if (a.wrong >= 3 && !a.solved && !q.classList.contains("revealed")) reveal.hidden = false;
       };
+      const firstAnswer = () => {
+        const first = accepted.split("|")[0].trim();
+        const opt = q.querySelector('.q-choices li[data-opt="' + first + '"]');
+        return opt ? first + ") " + opt.textContent.trim() : first;
+      };
+      reveal.addEventListener("click", () => {
+        q.classList.add("revealed");
+        reveal.hidden = true;
+        feedback.className = "q-feedback";
+        feedback.textContent = "🗝️ Answer: " + firstAnswer();
+        noteAttempt(q, (a) => { a.revealed = true; });
+      });
 
       const choices = q.querySelector(".q-choices");
       if (choices) {
@@ -373,9 +516,13 @@
         row.after(feedback);
       }
 
+      feedback.after(reveal);
       const why = q.querySelector(".q-why");
-      if (why) feedback.after(why);
+      if (why) reveal.after(why);
+      watchHelp(q);
+      const past = attemptOf(q);
       if (isSolved(q.dataset.id)) { q.classList.add("correct"); feedback.className = "q-feedback ok"; feedback.textContent = "🍀 Solved before."; }
+      else if (past && past.wrong >= 3) reveal.hidden = false;
     });
   }
 
@@ -604,7 +751,7 @@ self.onmessage = async (e) => {
         }
         runBtn.disabled = false;
         res.logs.forEach((l) => line("log", l.replace(/\n$/, "")));
-        if (res.error) { line("fail", "🧨 " + res.error); box.classList.remove("correct"); return; }
+        if (res.error) { line("fail", "🧨 " + res.error); box.classList.remove("correct"); recordResult(box, false); return; }
         let passed = 0;
         tests.forEach((t, k) => {
           const r = res.results[k];
@@ -617,6 +764,7 @@ self.onmessage = async (e) => {
           const all = passed === tests.length;
           line(all ? "pass" : "fail", all ? "\n🪩 All " + passed + " tests pass!" : "\n" + passed + " / " + tests.length + " tests pass. Keep going.");
           box.classList.toggle("correct", all);
+          recordResult(box, all);
           if (all) markSolved(box.dataset.id);
         }
       }
@@ -630,6 +778,7 @@ self.onmessage = async (e) => {
           area.setRangeText("  ", s, en, "end");
         }
       });
+      watchHelp(box);
       if (isSolved(box.dataset.id)) box.classList.add("correct");
     });
   }
@@ -767,7 +916,7 @@ self.onmessage = async (e) => {
   }
 
   // Public API for page-specific scripts.
-  window.Learn = { store, el, answerMatches, markSolved, drawPlot, search, root: ROOT, pageKey, today };
+  window.Learn = { store, el, answerMatches, markSolved, drawPlot, search, root: ROOT, pageKey, today, progressSummary };
 
   // Pages made before main.html existed link to index.html: point them at main.html.
   function fixHomeLinks() {
@@ -779,7 +928,6 @@ self.onmessage = async (e) => {
     const chapters = initChapters();
     if (document.body.classList.contains("home")) document.body.append(themeButton());
     else buildShell(chapters);
-    recordVisit();
     initLibs();
     initSteps();
     initInteractive();
@@ -788,9 +936,11 @@ self.onmessage = async (e) => {
     loadLibrary().then((lib) => {
       if (lib.id) LIB_ID = String(lib.id);
       migrateKey(solvedKey(), "learn:solved:" + ABS_PATH);
+      recordVisit();
       initQuizzes();
       initRunners();
       initProgress();
+      initShare();
       buildIndex(lib);
       fillTree(lib);
       document.dispatchEvent(new CustomEvent("learn:ready", { detail: { library: lib } }));
